@@ -1,0 +1,480 @@
+<!DOCTYPE html>
+<html lang="zh-TW" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>蓋厚勝 GHS — 一人公司獲客系統</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@300;400;500;700;900&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<style>
+:root{
+--primary:#FF6B35;--primary-light:#FF8C5A;
+--accent:#00D4AA;--purple:#8B5CF6;--blue:#3B82F6;
+--bg0:#08080A;--bg1:#0F0F12;--bg2:#161619;--bg3:#1E1E22;--bg4:#252529;
+--text0:#F5F5F7;--text1:#8E8E99;--text2:#55555F;
+--border:rgba(255,255,255,.06);--border2:rgba(255,255,255,.12);
+--glow-primary:rgba(255,107,53,.4);--glow-accent:rgba(0,212,170,.3);
+--teal:#00D4AA;--teal-dim:rgba(0,212,170,.1);
+--orange:#FF6B35;--orange-dim:rgba(255,107,53,.1);
+--yellow:#FFC107;--yellow-dim:rgba(255,193,7,.1);
+--red:#EF4444;--green:#00D4AA;--green-dim:rgba(0,212,170,.1);
+--purple-dim:rgba(139,92,246,.1);
+--shadow:0 20px 50px rgba(0,0,0,.5);
+}
+[data-theme="light"]{
+--bg0:#FAFAFA;--bg1:#FFF;--bg2:#F2F2F4;--bg3:#E8E8EC;--bg4:#DDDDE4;
+--text0:#1A1A1F;--text1:#666670;--text2:#9999A3;
+--border:rgba(0,0,0,.06);--border2:rgba(0,0,0,.12);
+--primary:#E85520;--orange:#E85520;
+--shadow:0 8px 30px rgba(0,0,0,.1);
+}
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{font-family:'Noto Sans TC',sans-serif;background:var(--bg0);color:var(--text0);line-height:1.75;overflow-x:hidden;min-height:100vh}
+#particles{position:fixed;inset:0;pointer-events:none;z-index:0}
+.particle{position:absolute;border-radius:50%;opacity:0;animation:floatUp linear infinite}
+@keyframes floatUp{0%{opacity:0;transform:translateY(100vh) scale(0)}10%{opacity:.7}90%{opacity:.4}100%{opacity:0;transform:translateY(-10vh) scale(1)}}
+.mouse-glow{position:fixed;width:520px;height:520px;background:radial-gradient(circle,var(--glow-primary) 0%,transparent 70%);border-radius:50%;pointer-events:none;transform:translate(-50%,-50%);z-index:1;opacity:0;transition:opacity .5s;filter:blur(44px)}
+body:hover .mouse-glow{opacity:.55}
+.bg-effects{position:fixed;inset:0;pointer-events:none;z-index:0;background:radial-gradient(ellipse at 15% 15%,rgba(255,107,53,.07) 0%,transparent 52%),radial-gradient(ellipse at 85% 85%,rgba(0,212,170,.05) 0%,transparent 52%),linear-gradient(rgba(255,255,255,.011) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.011) 1px,transparent 1px);background-size:100%,100%,100px 100px,100px 100px}
+
+/* NAV */
+.nav{position:fixed;top:0;left:0;right:0;z-index:1000;padding:14px 40px;background:rgba(8,8,10,.78);backdrop-filter:blur(24px) saturate(180%);border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center}
+[data-theme="light"] .nav{background:rgba(255,255,255,.82)}
+.nav-inner{display:flex;align-items:center;gap:10px;width:100%;max-width:1200px;margin:0 auto}
+.nav-logo{font-weight:800;font-size:1rem;color:var(--text0);display:flex;align-items:center;gap:10px;flex-shrink:0;margin-right:14px;white-space:nowrap}
+.nav-logo-icon{width:36px;height:36px;background:linear-gradient(135deg,var(--primary),var(--primary-light));border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:17px;box-shadow:0 0 20px var(--glow-primary);animation:logoPulse 3s ease-in-out infinite}
+@keyframes logoPulse{0%,100%{box-shadow:0 0 20px var(--glow-primary)}50%{box-shadow:0 0 35px var(--glow-primary)}}
+.nav-ver{display:flex;gap:5px;flex-shrink:0;background:var(--bg2);border:1px solid var(--border);border-radius:12px;padding:4px}
+.nav-ver-btn{padding:7px 16px;border-radius:9px;font-size:.78rem;font-weight:700;border:none;background:transparent;color:var(--text1);cursor:pointer;transition:.25s;white-space:nowrap}
+.nav-ver-btn.on{background:linear-gradient(135deg,var(--primary),var(--primary-light));color:#fff;box-shadow:0 4px 14px var(--glow-primary)}
+.nav-ver-btn:not(.on):hover{color:var(--text0);background:rgba(255,255,255,.06)}
+.nav-tabs{display:flex;gap:2px;flex:1;overflow-x:auto;scrollbar-width:none;margin:0 10px}
+.nav-tabs::-webkit-scrollbar{display:none}
+.nav-btn{padding:8px 14px;border-radius:10px;font-size:.79rem;font-weight:500;color:var(--text1);border:none;background:transparent;cursor:pointer;white-space:nowrap;transition:.25s}
+.nav-btn:hover{color:var(--text0);background:var(--bg2)}
+.nav-btn.on{color:var(--primary);background:var(--orange-dim)}
+.nav-theme{width:40px;height:40px;border-radius:12px;border:1px solid var(--border);background:var(--bg2);color:var(--text0);cursor:pointer;font-size:18px;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:.3s;margin-left:auto}
+.nav-theme:hover{background:var(--primary);border-color:var(--primary);transform:rotate(180deg)}
+
+.wrap{max-width:1200px;margin:0 auto;padding:0 40px;position:relative;z-index:10}
+.section{padding:90px 0}
+.divider{height:1px;background:linear-gradient(90deg,transparent,var(--border),transparent)}
+.ver-page{display:none}.ver-page.active{display:block}
+
+/* HERO */
+.hero{padding:140px 40px 96px;text-align:center;position:relative;overflow:hidden;max-width:1200px;margin:0 auto}
+.hero-glow{position:absolute;top:-80px;left:50%;transform:translateX(-50%);width:800px;height:420px;background:radial-gradient(ellipse,rgba(255,107,53,.09) 0%,transparent 65%);pointer-events:none}
+.hero-eyebrow{display:inline-flex;align-items:center;gap:10px;padding:8px 18px;border-radius:100px;border:1px solid var(--border2);background:var(--bg1);font-size:.78rem;font-weight:500;color:var(--text1);margin-bottom:28px}
+.hero-dot-green{width:8px;height:8px;border-radius:50%;background:var(--accent);box-shadow:0 0 10px var(--glow-accent);animation:pulse 2s infinite}
+@keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.5;transform:scale(1.5)}}
+.hero-title{font-size:clamp(2.2rem,5.5vw,3.8rem);font-weight:900;line-height:1.08;letter-spacing:-.03em;margin-bottom:20px;background:linear-gradient(135deg,var(--text0) 0%,var(--primary) 55%,var(--accent) 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.hero-title .hl{background:none;-webkit-text-fill-color:var(--primary)}
+.hero-desc{font-size:1rem;color:var(--text1);max-width:560px;margin:0 auto 40px;line-height:1.9}
+.hero-stats{display:flex;justify-content:center;gap:52px;flex-wrap:wrap}
+.hstat{text-align:center}
+.hstat-val{font-size:2.4rem;font-weight:900;color:var(--primary);text-shadow:0 0 30px var(--glow-primary)}
+.hstat-lbl{font-size:.75rem;color:var(--text2);margin-top:5px;font-weight:500}
+
+/* SECTION HEADER */
+.sh{margin-bottom:40px}
+.sh-tag{display:inline-flex;align-items:center;gap:7px;padding:6px 14px;border-radius:8px;font-size:.72rem;font-weight:700;letter-spacing:.07em;text-transform:uppercase;margin-bottom:14px}
+.t-blue{background:rgba(59,130,246,.12);color:var(--blue);border:1px solid rgba(59,130,246,.25)}
+.t-teal{background:var(--teal-dim);color:var(--teal);border:1px solid rgba(0,212,170,.25)}
+.t-orange{background:var(--orange-dim);color:var(--primary);border:1px solid rgba(255,107,53,.25)}
+.t-green{background:var(--green-dim);color:var(--accent);border:1px solid rgba(0,212,170,.25)}
+.t-purple{background:var(--purple-dim);color:var(--purple);border:1px solid rgba(139,92,246,.25)}
+.t-yellow{background:var(--yellow-dim);color:var(--yellow);border:1px solid rgba(255,193,7,.25)}
+.t-red{background:rgba(239,68,68,.08);color:var(--red);border:1px solid rgba(239,68,68,.2)}
+.sh-title{font-size:2rem;font-weight:800;letter-spacing:-.025em;margin-bottom:9px}
+.sh-desc{font-size:.95rem;color:var(--text1);max-width:600px}
+
+/* CARDS */
+.card{background:var(--bg1);border:1px solid var(--border);border-radius:22px;padding:32px;transition:all .4s cubic-bezier(.16,1,.3,1);backdrop-filter:blur(12px)}
+.card:hover{border-color:var(--border2);transform:translateY(-5px);box-shadow:var(--shadow)}
+.card-h{display:flex;align-items:center;gap:14px;margin-bottom:16px}
+.card-ico{width:44px;height:44px;border-radius:12px;background:var(--bg3);display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0}
+.card-title{font-size:1rem;font-weight:700}
+.g2{display:grid;grid-template-columns:repeat(auto-fit,minmax(340px,1fr));gap:24px}
+.g3{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:22px}
+
+/* FUNNEL */
+.funnel{display:flex;flex-direction:column;max-width:900px;margin:0 auto}
+.f-row{display:flex;cursor:pointer;transition:all .35s cubic-bezier(.16,1,.3,1);border-bottom:1px solid var(--border)}
+.f-row:hover{transform:scale(1.005)}
+.f-row:last-child{border-bottom:none}
+.f-bar{display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.f-num{font-size:15px;font-weight:900;color:#fff;width:36px;height:36px;display:flex;align-items:center;justify-content:center;border-radius:50%;background:rgba(0,0,0,.25);backdrop-filter:blur(6px)}
+.f-body{flex:1;padding:18px 24px;background:var(--bg1)}
+.f-title{font-size:1.05rem;font-weight:800;color:var(--primary);margin-bottom:4px}
+.f-sub{font-size:.82rem;color:var(--text1);margin-bottom:10px}
+.f-chips{display:flex;flex-wrap:wrap;gap:5px}
+.chip{padding:4px 12px;border-radius:8px;font-size:.76rem;font-weight:500;background:var(--bg2);border:1px solid var(--border);color:var(--text1);transition:.2s}
+.chip.on{color:var(--green);border-color:rgba(0,212,170,.2);background:rgba(0,212,170,.05)}
+.chip.half{color:var(--yellow);border-color:rgba(255,193,7,.2);background:rgba(255,193,7,.05)}
+.chip.off{color:var(--red);border-color:rgba(239,68,68,.15);background:rgba(239,68,68,.05)}
+.chip.plan{color:var(--text2)}
+.f-row:nth-child(1) .f-bar{width:100px;background:linear-gradient(135deg,#FF6B35,#FF8C5A);border-radius:16px 0 0 0}
+.f-row:nth-child(2) .f-bar{width:88px;background:linear-gradient(135deg,#E85A2A,#FF6B35)}
+.f-row:nth-child(3) .f-bar{width:76px;background:linear-gradient(135deg,#CC4A20,#E85A2A)}
+.f-row:nth-child(4) .f-bar{width:64px;background:linear-gradient(135deg,#B03A18,#CC4A20)}
+.f-row:nth-child(5) .f-bar{width:52px;background:linear-gradient(135deg,var(--accent),#33DDBB);border-radius:0 0 0 16px}
+.f-row:nth-child(1) .f-body{border-radius:0 16px 0 0}
+.f-row:nth-child(5) .f-body{border-radius:0 0 16px 0}
+
+/* DETAIL OVERLAY */
+.ov{display:none;position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:2000;backdrop-filter:blur(6px);justify-content:center;align-items:flex-start;padding:80px 40px 40px;overflow-y:auto}
+.ov.open{display:flex}
+.panel{background:var(--bg1);border:1.5px solid var(--border2);border-radius:22px;max-width:800px;width:100%;animation:slideUp .35s cubic-bezier(.16,1,.3,1)}
+@keyframes slideUp{from{opacity:0;transform:translateY(30px)}to{opacity:1;transform:translateY(0)}}
+.panel-head{display:flex;align-items:center;gap:14px;padding:24px 32px;border-bottom:1px solid var(--border)}
+.panel-num{width:44px;height:44px;border-radius:50%;background:linear-gradient(135deg,var(--primary),var(--primary-light));color:#fff;display:flex;align-items:center;justify-content:center;font-size:17px;font-weight:900;box-shadow:0 0 20px var(--glow-primary)}
+.panel-title{font-size:1.25rem;font-weight:900;color:var(--primary)}
+.panel-sub{font-size:.85rem;color:var(--text1);margin-top:2px}
+.panel-close{margin-left:auto;width:38px;height:38px;border-radius:10px;border:1px solid var(--border);background:var(--bg2);color:var(--text1);cursor:pointer;font-size:16px;display:flex;align-items:center;justify-content:center;transition:.2s}
+.panel-close:hover{background:var(--red);border-color:var(--red);color:#fff}
+.panel-body{padding:28px 32px}
+.d-grp{font-size:.75rem;font-weight:700;color:var(--text1);letter-spacing:1.5px;margin:22px 0 10px;padding-bottom:6px;border-bottom:1px solid var(--border)}
+.d-grp:first-child{margin-top:0}
+.d-grp.inc{color:var(--green);border-color:rgba(0,212,170,.15)}
+.d-grp.exp{color:var(--red);border-color:rgba(239,68,68,.1)}
+.d-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.d-card{background:var(--bg2);border:1.5px solid var(--border);border-radius:16px;padding:16px 20px;transition:all .35s cubic-bezier(.16,1,.3,1);backdrop-filter:blur(8px)}
+.d-card:hover{border-color:var(--primary);transform:translateY(-4px);box-shadow:0 14px 35px rgba(0,0,0,.25)}
+[data-theme="light"] .d-card:hover{box-shadow:0 8px 20px rgba(0,0,0,.06)}
+.d-card-n{font-weight:700;font-size:.92rem;margin-bottom:4px}
+.d-card-d{font-size:.8rem;color:var(--text1);line-height:1.6}
+.d-card-s{font-size:.72rem;margin-top:6px;font-weight:600}
+.s-on{color:var(--green)}.s-half{color:var(--yellow)}.s-off{color:var(--red)}.s-plan{color:var(--text2)}
+
+/* CALC */
+.calc-summary{display:grid;grid-template-columns:1fr 1fr 1fr;gap:18px;margin-bottom:36px}
+.sum-card{background:var(--bg1);border:1.5px solid var(--border);border-radius:20px;padding:24px;text-align:center;backdrop-filter:blur(10px);transition:all .35s}
+.sum-card:hover{transform:translateY(-4px);box-shadow:var(--shadow)}
+.sum-card.si{border-color:var(--green);box-shadow:0 0 25px rgba(0,212,170,.1)}
+.sum-card.se{border-color:var(--red);box-shadow:0 0 25px rgba(239,68,68,.1)}
+.sum-card.sp{border-color:var(--primary);box-shadow:0 0 25px rgba(255,107,53,.1)}
+.sum-lbl{font-size:.72rem;font-weight:700;color:var(--text2);letter-spacing:.05em;margin-bottom:6px}
+.sum-val{font-family:'JetBrains Mono',monospace;font-size:1.8rem;font-weight:900;line-height:1}
+.sum-card.si .sum-val{color:var(--green)}.sum-card.se .sum-val{color:var(--red)}.sum-card.sp .sum-val{color:var(--primary)}
+.sum-card.sp.neg .sum-val{color:var(--red)}
+.calc-chart-wrap{background:var(--bg1);border:1px solid var(--border);border-radius:22px;padding:28px;margin-bottom:36px;backdrop-filter:blur(10px)}
+.calc-chart-title{font-size:.85rem;font-weight:700;color:var(--text1);margin-bottom:16px}
+.calc-sec{margin-bottom:28px}
+.calc-head{display:flex;align-items:center;gap:8px;margin-bottom:14px;padding-bottom:8px;border-bottom:1px solid var(--border)}
+.calc-tag{padding:5px 14px;border-radius:8px;font-size:.72rem;font-weight:700;letter-spacing:.04em}
+.calc-tag.cg{background:rgba(0,212,170,.1);color:var(--green);border:1px solid rgba(0,212,170,.25)}
+.calc-tag.cr{background:rgba(239,68,68,.08);color:var(--red);border:1px solid rgba(239,68,68,.2)}
+.calc-tag.cp{background:rgba(255,107,53,.1);color:var(--primary);border:1px solid rgba(255,107,53,.25)}
+.calc-title{font-size:1rem;font-weight:800}
+.calc-sub{margin-left:auto;font-family:'JetBrains Mono',monospace;font-size:.88rem;font-weight:700;color:var(--text1)}
+.crow{display:flex;align-items:center;gap:14px;padding:14px 20px;background:var(--bg1);border:1.5px solid var(--border);border-radius:14px;margin-bottom:8px;transition:all .3s cubic-bezier(.16,1,.3,1)}
+.crow:hover{border-color:var(--border2);transform:translateX(5px)}
+.crow-info{flex:1;min-width:0}
+.crow-n{font-size:.9rem;font-weight:700;margin-bottom:2px}
+.crow-d{font-size:.76rem;color:var(--text2)}
+.crow-in{width:130px;flex-shrink:0}
+.crow-in input{width:100%;padding:9px 14px;border-radius:10px;border:1.5px solid var(--border2);background:var(--bg3);color:var(--text0);font-family:'JetBrains Mono',monospace;font-size:.88rem;text-align:right;outline:none;transition:.25s}
+.crow-in input:focus{border-color:var(--primary);box-shadow:0 0 14px rgba(255,107,53,.2)}
+.crow-in input::placeholder{color:var(--text2)}
+.kpi-card{display:flex;align-items:center;gap:16px;padding:20px 24px;background:var(--bg1);border:1.5px solid var(--border);border-radius:18px;margin-bottom:10px;transition:all .35s}
+.kpi-card:hover{border-color:var(--primary);transform:translateX(5px);box-shadow:-5px 0 20px rgba(255,107,53,.12)}
+.kpi-ico{width:40px;height:40px;border-radius:12px;background:rgba(255,107,53,.1);display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:800;color:var(--primary);flex-shrink:0}
+.kpi-n{font-size:.9rem;font-weight:700}
+.kpi-d{font-size:.75rem;color:var(--text2)}
+.kpi-v{font-family:'JetBrains Mono',monospace;font-size:1.2rem;font-weight:800;color:var(--primary);min-width:80px;text-align:right;margin-left:auto}
+
+/* AI */
+.ai-box{background:var(--bg1);border:1.5px solid var(--border);border-radius:22px;padding:32px;backdrop-filter:blur(10px);margin-bottom:28px}
+.ai-box:hover{border-color:var(--border2)}
+.ai-textarea{width:100%;min-height:160px;padding:18px;border-radius:14px;border:1.5px solid var(--border2);background:var(--bg2);color:var(--text0);font-family:'Noto Sans TC',sans-serif;font-size:.9rem;line-height:1.7;resize:vertical;outline:none;transition:.25s}
+.ai-textarea:focus{border-color:var(--primary);box-shadow:0 0 20px rgba(255,107,53,.15)}
+.ai-textarea::placeholder{color:var(--text2)}
+.ai-actions{display:flex;gap:10px;margin-top:16px;flex-wrap:wrap}
+.ai-btn{padding:10px 24px;border-radius:12px;font-size:.85rem;font-weight:700;border:none;cursor:pointer;transition:all .25s}
+.ai-btn-primary{background:linear-gradient(135deg,var(--primary),var(--primary-light));color:#fff;box-shadow:0 4px 16px var(--glow-primary)}
+.ai-btn-primary:hover{transform:translateY(-2px);box-shadow:0 8px 24px var(--glow-primary)}
+.ai-btn-secondary{background:var(--bg2);border:1.5px solid var(--border2);color:var(--text1)}
+.ai-btn-secondary:hover{border-color:var(--primary);color:var(--text0)}
+.ai-file-label{padding:10px 24px;border-radius:12px;font-size:.85rem;font-weight:700;background:var(--bg2);border:1.5px solid var(--border2);color:var(--text1);cursor:pointer;transition:.25s;display:inline-flex;align-items:center;gap:8px}
+.ai-file-label:hover{border-color:var(--accent);color:var(--text0)}
+.ai-result{margin-top:20px;padding:20px;border-radius:14px;border:1px solid var(--border);background:var(--bg2);display:none}
+.ai-result.show{display:block}
+.ai-result-title{font-size:.85rem;font-weight:700;color:var(--accent);margin-bottom:10px}
+.ai-result-body{font-size:.85rem;color:var(--text1);line-height:1.8}
+.ai-loading{display:none;align-items:center;gap:10px;margin-top:16px;font-size:.85rem;color:var(--text1)}
+.ai-loading.show{display:flex}
+.ai-spinner{width:20px;height:20px;border:2px solid var(--border2);border-top-color:var(--primary);border-radius:50%;animation:spin .8s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+.reveal{opacity:0;transform:translateY(40px);transition:opacity .7s,transform .7s cubic-bezier(.16,1,.3,1)}
+.reveal.visible{opacity:1;transform:translateY(0)}
+.footer{padding:56px 0;text-align:center;border-top:1px solid var(--border)}
+.footer-text{font-size:.86rem;color:var(--text2);line-height:2.2}
+.footer-brand{color:var(--primary);font-weight:700}
+.stb{position:fixed;bottom:28px;right:28px;z-index:99;width:46px;height:46px;border-radius:14px;background:var(--bg2);border:1px solid var(--border2);color:var(--text1);cursor:pointer;font-size:1.1rem;display:flex;align-items:center;justify-content:center;transition:.25s;opacity:0;pointer-events:none}
+.stb.show{opacity:1;pointer-events:auto}
+.stb:hover{background:var(--primary);border-color:var(--primary);color:#fff;transform:translateY(-3px)}
+
+@media(max-width:768px){.wrap{padding:0 20px}.hero{padding:110px 20px 70px}.hero-title{font-size:2rem}.nav{padding:12px 20px}.nav-tabs{display:none}.section{padding:60px 0}.d-grid{grid-template-columns:1fr}.calc-summary{grid-template-columns:1fr}.crow{flex-wrap:wrap}.crow-in{width:100%}.ov{padding:60px 16px 16px}.panel-body{padding:20px}.f-bar{width:50px!important}}
+@media(max-width:480px){.hero-title{font-size:1.7rem}.g2,.g3{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<div id="particles"></div>
+<div class="mouse-glow" id="mouseGlow"></div>
+<div class="bg-effects"></div>
+
+<nav class="nav">
+<div class="nav-inner">
+<div class="nav-logo"><div class="nav-logo-icon">G</div>GHS 獲客系統</div>
+<div class="nav-ver">
+<button class="nav-ver-btn on" id="btnP1" onclick="switchPage('funnel')">獲客漏斗</button>
+<button class="nav-ver-btn" id="btnP2" onclick="switchPage('calc')">財務計算機</button>
+<button class="nav-ver-btn" id="btnP3" onclick="switchPage('ai')">AI 模擬</button>
+</div>
+<div class="nav-tabs" id="navTabs"></div>
+<button class="nav-theme" id="btnTheme" onclick="toggleTheme()">🌙</button>
+</div>
+</nav>
+
+<div class="hero">
+<div class="hero-glow"></div>
+<div class="hero-eyebrow"><span class="hero-dot-green"></span>一人公司獲客系統 2026/03</div>
+<h1 class="hero-title">蓋厚勝<span class="hl">獲客漏斗</span><br>財務結構</h1>
+<p class="hero-desc">五層漏斗結構 財務計算機 AI 智慧模擬 三合一營運工具</p>
+<div class="hero-stats">
+<div class="hstat"><div class="hstat-val">5</div><div class="hstat-lbl">漏斗層級</div></div>
+<div class="hstat"><div class="hstat-val">8</div><div class="hstat-lbl">支出分類</div></div>
+<div class="hstat"><div class="hstat-val">AI</div><div class="hstat-lbl">智慧分類</div></div>
+</div>
+</div>
+<div class="divider"></div>
+
+<!-- PAGE 1: FUNNEL -->
+<div id="pg-funnel" class="ver-page active">
+<section class="section">
+<div class="wrap">
+<div class="sh reveal"><div class="sh-tag t-orange">獲客漏斗</div><h2 class="sh-title">五層漏斗結構</h2><p class="sh-desc">點擊任一層查看詳細內容</p></div>
+<div class="funnel reveal">
+<div class="f-row" onclick="od(0)"><div class="f-bar"><div class="f-num">1</div></div><div class="f-body"><div class="f-title">曝光 — 讓人知道你</div><div class="f-sub">花錢或花時間 把流量製造出來</div><div class="f-chips"><span class="chip on">地推 主力</span><span class="chip on">代理 GU</span><span class="chip half">直播 不穩</span><span class="chip half">IG/Threads</span><span class="chip half">SEO</span><span class="chip off">Meta 暫停</span><span class="chip off">LINE 暫停</span><span class="chip plan">KOL</span><span class="chip plan">Google</span><span class="chip plan">TikTok</span><span class="chip plan">TG</span></div></div></div>
+<div class="f-row" onclick="od(1)"><div class="f-bar"><div class="f-num">2</div></div><div class="f-body"><div class="f-title">吸引 — 讓人想點進來</div><div class="f-sub">活動包裝 視覺素材 文案鉤子</div><div class="f-chips"><span class="chip on">四月企劃</span><span class="chip on">互動遊戲</span><span class="chip on">IG 抽獎</span></div></div></div>
+<div class="f-row" onclick="od(2)"><div class="f-bar"><div class="f-num">3</div></div><div class="f-body"><div class="f-title">註冊 — 讓人變成玩家</div><div class="f-sub">新會員進場 完成首儲</div><div class="f-chips"><span class="chip on">新會員禮</span><span class="chip on">LINE 密令</span><span class="chip on">客服</span><span class="chip on">客微</span><span class="chip half">水軍</span></div></div></div>
+<div class="f-row" onclick="od(3)"><div class="f-bar"><div class="f-num">4</div></div><div class="f-body"><div class="f-title">留存 — 讓玩家持續儲值</div><div class="f-sub">大戶養成 競技排行 挑戰機制 日常黏著</div><div class="f-chips"><span class="chip on">大富翁</span><span class="chip on">碼量排行</span><span class="chip on">百家挑戰</span><span class="chip on">寶箱</span><span class="chip half">限定活動</span><span class="chip half">LINE 再行銷</span></div></div></div>
+<div class="f-row" onclick="od(4)"><div class="f-bar"><div class="f-num">$</div></div><div class="f-body"><div class="f-title">營收與支出</div><div class="f-sub">錢怎麼進來 錢花去哪裡</div><div class="f-chips"><span class="chip on">玩家儲值</span><span class="chip off">平台金流</span><span class="chip off">人事</span><span class="chip off">固定</span><span class="chip off">廣告</span><span class="chip off">代理</span><span class="chip off">幣商</span><span class="chip off">稅</span></div></div></div>
+</div>
+</div>
+</section>
+</div>
+
+<!-- DETAIL OVERLAY -->
+<div class="ov" id="ov" onclick="if(event.target===this)cd()"><div class="panel" id="pnl"></div></div>
+
+<!-- PAGE 2: CALC -->
+<div id="pg-calc" class="ver-page">
+<section class="section">
+<div class="wrap">
+<div class="sh reveal"><div class="sh-tag t-teal">財務計算機</div><h2 class="sh-title">月度損益計算</h2><p class="sh-desc">輸入金額即時計算 賺錢變綠 虧錢變紅</p></div>
+<div class="calc-summary reveal">
+<div class="sum-card si"><div class="sum-lbl">月收入</div><div class="sum-val" id="vi">$0</div></div>
+<div class="sum-card se"><div class="sum-lbl">月支出</div><div class="sum-val" id="vo">$0</div></div>
+<div class="sum-card sp" id="vpc"><div class="sum-lbl">月損益</div><div class="sum-val" id="vp">$0</div></div>
+</div>
+<div class="calc-chart-wrap reveal"><div class="calc-chart-title">支出結構佔比</div><div style="max-width:400px;margin:0 auto"><canvas id="pieChart"></canvas></div></div>
+
+<div class="calc-sec reveal"><div class="calc-head"><span class="calc-tag cg">收入</span><span class="calc-title">玩家儲值</span><span class="calc-sub" id="zi">$0</span></div>
+<div class="crow"><div class="crow-info"><div class="crow-n">玩家儲值</div><div class="crow-d">唯一收入來源</div></div><div class="crow-in"><input type="number" placeholder="0" data-g="i" oninput="cc()"></div></div></div>
+
+<div class="calc-sec reveal"><div class="calc-head"><span class="calc-tag cr">支出</span><span class="calc-title">平台與金流</span><span class="calc-sub" id="zpf">$0</span></div>
+<div class="crow"><div class="crow-info"><div class="crow-n">站台費</div></div><div class="crow-in"><input type="number" placeholder="0" data-g="pf" oninput="cc()"></div></div>
+<div class="crow"><div class="crow-info"><div class="crow-n">遊戲商線路費</div></div><div class="crow-in"><input type="number" placeholder="0" data-g="pf" oninput="cc()"></div></div>
+<div class="crow"><div class="crow-info"><div class="crow-n">遊戲商損益</div></div><div class="crow-in"><input type="number" placeholder="0" data-g="pf" oninput="cc()"></div></div>
+<div class="crow"><div class="crow-info"><div class="crow-n">儲值金流費</div></div><div class="crow-in"><input type="number" placeholder="0" data-g="pf" oninput="cc()"></div></div></div>
+
+<div class="calc-sec reveal"><div class="calc-head"><span class="calc-tag cr">支出</span><span class="calc-title">人事成本</span><span class="calc-sub" id="zhr">$0</span></div>
+<div class="crow"><div class="crow-info"><div class="crow-n">直播主播薪資</div></div><div class="crow-in"><input type="number" placeholder="0" data-g="hr" oninput="cc()"></div></div>
+<div class="crow"><div class="crow-info"><div class="crow-n">運營人員</div></div><div class="crow-in"><input type="number" placeholder="0" data-g="hr" oninput="cc()"></div></div></div>
+
+<div class="calc-sec reveal"><div class="calc-head"><span class="calc-tag cr">支出</span><span class="calc-title">固定開銷</span><span class="calc-sub" id="zfx">$0</span></div>
+<div class="crow"><div class="crow-info"><div class="crow-n">辦公室租金</div></div><div class="crow-in"><input type="number" placeholder="0" data-g="fx" oninput="cc()"></div></div>
+<div class="crow"><div class="crow-info"><div class="crow-n">硬體 軟體訂閱</div></div><div class="crow-in"><input type="number" placeholder="0" data-g="fx" oninput="cc()"></div></div></div>
+
+<div class="calc-sec reveal"><div class="calc-head"><span class="calc-tag cr">支出</span><span class="calc-title">廣告費用</span><span class="calc-sub" id="zad">$0</span></div>
+<div class="crow"><div class="crow-info"><div class="crow-n">品牌廣告</div></div><div class="crow-in"><input type="number" placeholder="0" data-g="ad" oninput="cc()"></div></div>
+<div class="crow"><div class="crow-info"><div class="crow-n">IP 直播廣告</div></div><div class="crow-in"><input type="number" placeholder="0" data-g="ad" oninput="cc()"></div></div>
+<div class="crow"><div class="crow-info"><div class="crow-n">活動日金</div></div><div class="crow-in"><input type="number" placeholder="0" data-g="ad" oninput="cc()"></div></div>
+<div class="crow"><div class="crow-info"><div class="crow-n">抽獎</div></div><div class="crow-in"><input type="number" placeholder="0" data-g="ad" oninput="cc()"></div></div>
+<div class="crow"><div class="crow-info"><div class="crow-n">周邊</div></div><div class="crow-in"><input type="number" placeholder="0" data-g="ad" oninput="cc()"></div></div></div>
+
+<div class="calc-sec reveal"><div class="calc-head"><span class="calc-tag cr">支出</span><span class="calc-title">代理商</span><span class="calc-sub" id="zag">$0</span></div>
+<div class="crow"><div class="crow-info"><div class="crow-n">代理商傭金</div></div><div class="crow-in"><input type="number" placeholder="0" data-g="ag" oninput="cc()"></div></div></div>
+
+<div class="calc-sec reveal"><div class="calc-head"><span class="calc-tag cr">支出</span><span class="calc-title">幣商</span><span class="calc-sub" id="zbs">$0</span></div>
+<div class="crow"><div class="crow-info"><div class="crow-n">輸贏</div></div><div class="crow-in"><input type="number" placeholder="0" data-g="bs" oninput="cc()"></div></div></div>
+
+<div class="calc-sec reveal"><div class="calc-head"><span class="calc-tag cr">支出</span><span class="calc-title">國家</span><span class="calc-sub" id="zgv">$0</span></div>
+<div class="crow"><div class="crow-info"><div class="crow-n">娛樂稅</div></div><div class="crow-in"><input type="number" placeholder="0" data-g="gv" oninput="cc()"></div></div>
+<div class="crow"><div class="crow-info"><div class="crow-n">所得稅</div></div><div class="crow-in"><input type="number" placeholder="0" data-g="gv" oninput="cc()"></div></div></div>
+
+<div class="calc-sec reveal"><div class="calc-head"><span class="calc-tag cp">KPI</span><span class="calc-title">利潤率</span></div>
+<div class="kpi-card"><div class="kpi-ico">%</div><div style="flex:1"><div class="kpi-n">利潤率</div><div class="kpi-d">月損益 / 月收入</div></div><div class="kpi-v" id="km">—</div></div></div>
+</div>
+</section>
+</div>
+
+<!-- PAGE 3: AI -->
+<div id="pg-ai" class="ver-page">
+<section class="section">
+<div class="wrap">
+<div class="sh reveal"><div class="sh-tag t-purple">AI 模擬</div><h2 class="sh-title">智慧財務分類</h2><p class="sh-desc">貼上帳目文字或上傳檔案 AI 自動分類到八組支出 模擬月開銷</p></div>
+<div class="ai-box reveal">
+<textarea class="ai-textarea" id="aiInput" placeholder="貼上帳目資料 例如：&#10;主播薪水 45000&#10;辦公室租金 25000&#10;Meta廣告 80000&#10;打火機 500個 15000&#10;&#10;或直接上傳 Excel / CSV 檔案"></textarea>
+<div class="ai-actions">
+<button class="ai-btn ai-btn-primary" onclick="runAI()">AI 分析分類</button>
+<label class="ai-file-label"><input type="file" accept=".csv,.xlsx,.xls,.txt" style="display:none" onchange="handleFile(event)">上傳檔案</label>
+<button class="ai-btn ai-btn-secondary" onclick="clearAI()">清除</button>
+</div>
+<div class="ai-loading" id="aiLoading"><div class="ai-spinner"></div>AI 正在分析你的帳目資料...</div>
+<div class="ai-result" id="aiResult"><div class="ai-result-title">分類結果</div><div class="ai-result-body" id="aiResultBody"></div></div>
+</div>
+<div class="ai-box reveal">
+<div style="font-size:.9rem;font-weight:700;margin-bottom:12px">分類完成後 自動填入計算機</div>
+<div style="font-size:.82rem;color:var(--text1);line-height:1.8">AI 會將你的帳目自動分到：平台金流 / 人事成本 / 固定開銷 / 廣告費用 / 代理商 / 幣商 / 國家稅 八個類別 並填入財務計算機即時算出損益</div>
+</div>
+</div>
+</section>
+</div>
+
+<div class="footer"><div class="footer-text">蓋厚勝娛樂城 GHS — 一人公司獲客系統<br><span class="footer-brand">2026/03</span></div></div>
+<button class="stb" id="stb" onclick="window.scrollTo({top:0,behavior:'smooth'})">↑</button>
+
+<script>
+// Layers data
+var L=[
+{n:'1',t:'曝光 — 讓人知道你',s:'花錢或花時間 把流量製造出來',g:[
+{n:'蓋厚勝 — 天推',c:[{n:'Meta 直播廣告',d:'數位娛樂城合法合規 效益價值在於名單',s:'暫停 改地推 市場龐大效益差',c:'s-off'},{n:'LINE 加好友廣告',d:'透過加好友導流 漏斗最上層的流量開口',s:'暫停 改地推 市場龐大效益差',c:'s-off'},{n:'品牌形象官網 SEO',d:'品牌公信力 主打合法合規 SEO 鎖定「2026 娛樂城推薦」「出金最穩平台」截搜尋引擎精準流量 建立權威背書',s:'有站 需優化定位',c:'s-half'},{n:'地推',d:'精準博弈相關 TA 聚集地 帶回高質量名單 最大問題是人力成本高',s:'目前主力 客製化打火機 撲克牌 提袋禮盒 立牌 異業結合娃娃機 計程車 夜市',c:'s-on'},{n:'IG / Threads 社群',d:'養號中 目標 100 位水軍矩陣 不是發廣告 是帶風向',s:'養號階段',c:'s-half'}]},
+{n:'總線 gai168 直播主',c:[{n:'Meta 直播廣告',d:'目前市場轉化價值最高',s:'平台大規模封控中 加購粉專 BM 粉絲專頁',c:'s-off'},{n:'直播導流',d:'品牌最前線的信任代理人 玩家對平台有戒心 但對人容易產生投射',s:'主播動盪不安 整體技巧提升 客微能力上升 團結度待觀察',c:'s-half'}]},
+{n:'代理商 gu3579',c:[{n:'代理',d:'組織裂變 槓桿化擴張 品牌快速滲透',s:'目前代理 GU 做很棒',c:'s-on'}]},
+{n:'規劃中 / 暫無動作',c:[{n:'KOL / KOC 短影音',d:'找生活類 測評類 KOC 做體驗開箱 第三人稱視角降低戒心',s:'暫無動作',c:'s-plan'},{n:'Google 廣告',d:'後期版本 效益高 合法推廣導流',s:'規劃中',c:'s-plan'},{n:'短影音矩陣 Reels / TikTok',d:'非博弈但有吸引力的短片 規避廣告封控',s:'暫無動作',c:'s-plan'},{n:'Telegram 群組獲客',d:'海外市場及名聲 世足金流',s:'規劃中',c:'s-plan'}]}
+]},
+{n:'2',t:'吸引 — 讓人想點進來',s:'活動包裝 視覺素材 文案鉤子',g:[
+{n:'月度活動企劃',c:[{n:'四月企劃 愚樂連假狂歡月',d:'6 個常駐活動加每週爆點 用童趣包裝降低博弈防備心 放大無腦領錢的爽感 極大化四月註冊率',s:'Banner 公告 全部就位',c:'s-on'},{n:'獨家互動遊戲',d:'每天一次抽獎 用免費日金建立每天醒來都要點開蓋厚勝的制約習慣 養成 DAU',s:'上線運作中',c:'s-on'},{n:'IG 抽獎',d:'實體大獎誘餌 PS5/Switch 突破博弈同溫層 社群病毒式擴散 低成本獲取潛在新名單',s:'已完成 建議後續準備名單再行銷',c:'s-on'}]},
+{n:'炒群信任建立',c:[]}
+]},
+{n:'3',t:'註冊 — 讓人變成玩家',s:'新會員進場 完成首儲',g:[
+{n:'首儲誘因',c:[{n:'新會員禮 童樂園入場券',d:'單儲 1,000 送 12,888 配合洗碼量限制與風控審核 嚴防套利',s:'運作中',c:'s-on'},{n:'LINE 密令好禮',d:'私訊官方 LINE 解鎖好禮 用互動感降低註冊摩擦力 同時收集名單',s:'ITEM04 運作中',c:'s-on'}]},
+{n:'客服轉換',c:[{n:'LINE 官方帳號客服',d:'加好友後由客服引導註冊 私域流量池入口',s:'運作中',c:'s-on'},{n:'直播主客微',d:'利用主播陪伴感私訊關心 配合影子客服在後台接手註冊教學',s:'運作中',c:'s-on'}]},
+{n:'註冊流程',c:[{n:'社群',d:'社會趨同效應 水軍發佈生活化贏錢心得與地推禮盒開箱 塑造大家都在蓋厚勝贏錢的氛圍',s:'水軍建立中',c:'s-half'}]}
+]},
+{n:'4',t:'留存 — 讓玩家持續儲值',s:'大戶養成 競技排行 挑戰機制 日常黏著',g:[
+{n:'大戶養成',c:[{n:'大富翁加倍奉還',d:'儲 1,000 送 12,000 累儲狂送 140,000 15% 回饋卡',s:'階梯式獎勵鎖住大戶 提高沉沒成本',c:'s-on'}]},
+{n:'競技排行',c:[{n:'碼量排行 砲火x神話x奢華',d:'三款主力老虎機月流水排行 前 50 名領獎金',s:'競爭心理驅動持續下注衝排名',c:'s-on'}]},
+{n:'挑戰機制',c:[{n:'EEAI 百家洗碼x連勝斬莊',d:'洗碼達 30,000 領 1,688 日金 連勝 10 局送 8,888 斬莊金',s:'雙軌制讓百家樂玩家有明確目標',c:'s-on'}]},
+{n:'日常黏著',c:[{n:'每日寶箱抽獎',d:'每天一次免費抽 養成每日登入習慣 維持 DAU',s:'運作中',c:'s-on'},{n:'日期限定活動',d:'每週爆點保持新鮮感',s:'規劃中',c:'s-half'},{n:'LINE 推播再行銷',d:'推送活動資訊 喚回沉睡玩家',s:'有在做 可強化',c:'s-half'}]}
+]},
+{n:'$',t:'營收與支出',s:'錢怎麼進來 錢花去哪裡',g:[
+{n:'收入',cls:'inc',c:[{n:'玩家儲值',d:'唯一收入來源',s:'核心命脈',c:'s-on'}]},
+{n:'支出 — 平台與金流',cls:'exp',c:[{n:'站台費',d:'平台使用費'},{n:'遊戲商線路費',d:'API 串接費用'},{n:'遊戲商損益',d:'玩家贏輸結算差額'},{n:'儲值金流費',d:'玩家儲值通道手續費'}]},
+{n:'支出 — 人事成本',cls:'exp',c:[{n:'直播主播薪資',d:'底薪加績效'},{n:'運營人員',d:'客服 影子客服 美術'}]},
+{n:'支出 — 固定開銷',cls:'exp',c:[{n:'辦公室租金',d:'辦公空間 直播場地'},{n:'硬體 軟體訂閱',d:'AI 訂閱 直播設備'}]},
+{n:'支出 — 廣告費用',cls:'exp',c:[{n:'品牌廣告',d:'品牌天推'},{n:'IP 直播廣告',d:'直播主廣告投放'},{n:'活動日金',d:'活動獎勵發放'},{n:'抽獎',d:'抽獎獎品成本'},{n:'周邊',d:'地推物資 打火機 撲克牌 禮盒'}]},
+{n:'支出 — 代理商',cls:'exp',c:[{n:'代理商傭金',d:'儲值分潤'}]},
+{n:'支出 — 幣商',cls:'exp',c:[{n:'輸贏',d:'玩家透過幣商充提的損益'}]},
+{n:'支出 — 國家',cls:'exp',c:[{n:'娛樂稅',d:'合法繳納'},{n:'所得稅',d:'合法繳納'}]},
+{n:'利潤率',c:[{n:'月損益 / 月收入',d:'LTV 大於 CAC 才賺錢',s:'需要追蹤',c:'s-half'}]}
+]}
+];
+
+// Detail overlay
+function od(i){
+var l=L[i],h='<div class="panel-head"><div class="panel-num">'+l.n+'</div><div><div class="panel-title">'+l.t+'</div><div class="panel-sub">'+l.s+'</div></div><button class="panel-close" onclick="cd()">✕</button></div><div class="panel-body">';
+l.g.forEach(function(g){var cls=g.cls==='inc'?'inc':g.cls==='exp'?'exp':'';h+='<div class="d-grp '+cls+'">'+g.n+'</div>';if(g.c.length){h+='<div class="d-grid">';g.c.forEach(function(c){h+='<div class="d-card"><div class="d-card-n">'+c.n+'</div><div class="d-card-d">'+c.d+'</div>';if(c.s)h+='<div class="d-card-s '+(c.c||'')+'">'+c.s+'</div>';h+='</div>';});h+='</div>';}});
+h+='</div>';document.getElementById('pnl').innerHTML=h;document.getElementById('ov').classList.add('open');document.body.style.overflow='hidden';
+}
+function cd(){document.getElementById('ov').classList.remove('open');document.body.style.overflow=''}
+document.addEventListener('keydown',function(e){if(e.key==='Escape')cd()});
+
+// Page switching
+function switchPage(id){
+document.querySelectorAll('.ver-page').forEach(function(p){p.classList.remove('active')});
+document.getElementById('pg-'+id).classList.add('active');
+document.querySelectorAll('.nav-ver-btn').forEach(function(b){b.classList.remove('on')});
+if(id==='funnel')document.getElementById('btnP1').classList.add('on');
+if(id==='calc'){document.getElementById('btnP2').classList.add('on');setTimeout(initChart,100)}
+if(id==='ai')document.getElementById('btnP3').classList.add('on');
+window.scrollTo({top:0,behavior:'smooth'});
+observeReveals();
+}
+
+// Theme
+function toggleTheme(){var h=document.documentElement;var t=h.getAttribute('data-theme')==='dark'?'light':'dark';h.setAttribute('data-theme',t);document.getElementById('btnTheme').textContent=t==='dark'?'🌙':'☀️'}
+
+// Calculator
+var pieChart=null;
+function gs(g){var inp=document.querySelectorAll('input[data-g="'+g+'"]');var t=0;for(var j=0;j<inp.length;j++)t+=parseFloat(inp[j].value)||0;return t}
+function fm(n){if(n===0)return'$0';return(n<0?'-$':'$')+Math.abs(Math.round(n)).toLocaleString()}
+function cc(){
+var inc=gs('i'),grps=['pf','hr','fx','ad','ag','bs','gv'],ids=['zpf','zhr','zfx','zad','zag','zbs','zgv'],tot=0,vals=[];
+for(var j=0;j<grps.length;j++){var v=gs(grps[j]);document.getElementById(ids[j]).textContent=fm(v);tot+=v;vals.push(v)}
+var pr=inc-tot;
+document.getElementById('vi').textContent=fm(inc);document.getElementById('vo').textContent=fm(tot);document.getElementById('vp').textContent=fm(pr);
+document.getElementById('zi').textContent=fm(inc);
+var pc=document.getElementById('vpc');if(pr<0)pc.classList.add('neg');else pc.classList.remove('neg');
+if(inc>0){var m=Math.round(pr/inc*100);document.getElementById('km').textContent=m+'%';document.getElementById('km').style.color=m>=0?'var(--green)':'var(--red)'}else document.getElementById('km').textContent='—';
+updateChart(vals);
+}
+function initChart(){
+var ctx=document.getElementById('pieChart');if(!ctx)return;
+if(pieChart)pieChart.destroy();
+pieChart=new Chart(ctx,{type:'doughnut',data:{labels:['平台金流','人事','固定','廣告','代理','幣商','國家'],datasets:[{data:[0,0,0,0,0,0,0],backgroundColor:['#3B82F6','#FF6B35','#8B5CF6','#FFC107','#00D4AA','#EF4444','#FF8C5A'],borderWidth:0,borderRadius:4}]},options:{responsive:true,plugins:{legend:{position:'bottom',labels:{color:'#8E8E99',font:{family:'Noto Sans TC',size:12},padding:16,usePointStyle:true,pointStyleWidth:8}}},cutout:'65%'}});
+}
+function updateChart(vals){if(!pieChart)initChart();if(pieChart){pieChart.data.datasets[0].data=vals;pieChart.update()}}
+
+// AI
+function runAI(){
+var input=document.getElementById('aiInput').value.trim();if(!input){alert('請輸入帳目資料');return}
+document.getElementById('aiLoading').classList.add('show');document.getElementById('aiResult').classList.remove('show');
+fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:1000,messages:[{role:'user',content:'你是一個娛樂城財務分類助手。請將以下帳目資料分類到這八組：1.平台金流(站台費/遊戲商線路費/遊戲商損益/儲值金流費) 2.人事成本(主播薪資/運營人員) 3.固定開銷(租金/軟硬體) 4.廣告費用(品牌廣告/IP直播廣告/活動日金/抽獎/周邊) 5.代理商(傭金) 6.幣商(輸贏) 7.國家(娛樂稅/所得稅) 8.收入(玩家儲值)。回覆格式必須是純JSON：{"收入":數字,"平台金流":數字,"人事成本":數字,"固定開銷":數字,"廣告費用":數字,"代理商":數字,"幣商":數字,"國家":數字,"說明":"簡短說明分類邏輯"}。帳目資料：\n'+input}]})}).then(function(r){return r.json()}).then(function(data){
+document.getElementById('aiLoading').classList.remove('show');
+var text=data.content.map(function(i){return i.text||''}).join('');
+try{
+var clean=text.replace(/```json|```/g,'').trim();
+var result=JSON.parse(clean);
+fillCalc(result);
+document.getElementById('aiResultBody').innerHTML='<div style="color:var(--accent);font-weight:700;margin-bottom:8px">已自動填入計算機</div><div>'+result['說明']+'</div>';
+document.getElementById('aiResult').classList.add('show');
+}catch(e){
+document.getElementById('aiResultBody').innerHTML='<div style="color:var(--text1)">'+text+'</div>';
+document.getElementById('aiResult').classList.add('show');
+}
+}).catch(function(e){document.getElementById('aiLoading').classList.remove('show');alert('AI 分析失敗：'+e.message)});
+}
+function fillCalc(r){
+var map={i:'收入',pf:'平台金流',hr:'人事成本',fx:'固定開銷',ad:'廣告費用',ag:'代理商',bs:'幣商',gv:'國家'};
+Object.keys(map).forEach(function(g){
+var val=r[map[g]]||0;
+var inputs=document.querySelectorAll('input[data-g="'+g+'"]');
+if(inputs.length===1)inputs[0].value=val;
+else if(inputs.length>1){inputs[0].value=val;for(var i=1;i<inputs.length;i++)inputs[i].value=0}
+});
+cc();switchPage('calc');
+}
+function handleFile(e){var f=e.target.files[0];if(!f)return;var reader=new FileReader();reader.onload=function(ev){document.getElementById('aiInput').value=ev.target.result};reader.readAsText(f)}
+function clearAI(){document.getElementById('aiInput').value='';document.getElementById('aiResult').classList.remove('show')}
+
+// Reveal
+function observeReveals(){var ro=new IntersectionObserver(function(entries){entries.forEach(function(e){if(e.isIntersecting)e.target.classList.add('visible')})},{threshold:.06,rootMargin:'0px 0px -40px 0px'});document.querySelectorAll('.reveal:not(.visible)').forEach(function(el){ro.observe(el)})}
+observeReveals();
+
+// Scroll
+window.addEventListener('scroll',function(){document.getElementById('stb').classList.toggle('show',window.scrollY>400)});
+
+// Particles
+(function(){var c=document.getElementById('particles');if(!c)return;var cols=['#FF6B35','#00D4AA','#8B5CF6','#3B82F6','#FFC107'];for(var i=0;i<55;i++){var p=document.createElement('div');p.className='particle';p.style.left=Math.random()*100+'%';var s=(Math.random()*3+1.5)+'px';p.style.width=p.style.height=s;p.style.background=cols[Math.floor(Math.random()*cols.length)];p.style.animationDuration=(Math.random()*20+12)+'s';p.style.animationDelay=(Math.random()*14)+'s';c.appendChild(p)}})();
+
+// Mouse glow
+var _mg=document.getElementById('mouseGlow');if(_mg){document.addEventListener('mousemove',function(e){_mg.style.left=e.clientX+'px';_mg.style.top=e.clientY+'px'})}
+</script>
+</body>
+</html>
+＄
