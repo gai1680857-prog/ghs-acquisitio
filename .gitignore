@@ -4,3 +4,11 @@
 !.dev.vars.example
 .env*
 !.env.example
+
+# media (served from R2, do not commit)
+*.mp4
+*.webm
+
+# local backups & state
+*.old-acquisition
+.omc/

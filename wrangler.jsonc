@@ -1,14 +1,20 @@
 {
   "$schema": "node_modules/wrangler/config-schema.json",
   "name": "ghs-funnel-web",
+  "main": "worker.js",
   "compatibility_date": "2025-09-27",
+  "compatibility_flags": ["nodejs_compat"],
   "observability": {
     "enabled": true
   },
   "assets": {
-    "directory": "."
+    "directory": ".",
+    "binding": "ASSETS"
   },
-  "compatibility_flags": [
-    "nodejs_compat"
+  "r2_buckets": [
+    {
+      "binding": "MEDIA",
+      "bucket_name": "ghs-media"
+    }
   ]
 }

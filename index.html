@@ -1,480 +1,1470 @@
 <!DOCTYPE html>
-<html lang="zh-TW" data-theme="dark">
+<html lang="zh-Hant">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>蓋厚勝 GHS — 一人公司獲客系統</title>
-<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@300;400;500;700;900&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
-<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<meta name="theme-color" content="#0a0a0f">
+<title>戰鬥陀螺競技場 · GHS 蓋厚勝</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700;900&family=Noto+Sans+TC:wght@400;500;700;900&display=swap" rel="stylesheet">
 <style>
-:root{
---primary:#FF6B35;--primary-light:#FF8C5A;
---accent:#00D4AA;--purple:#8B5CF6;--blue:#3B82F6;
---bg0:#08080A;--bg1:#0F0F12;--bg2:#161619;--bg3:#1E1E22;--bg4:#252529;
---text0:#F5F5F7;--text1:#8E8E99;--text2:#55555F;
---border:rgba(255,255,255,.06);--border2:rgba(255,255,255,.12);
---glow-primary:rgba(255,107,53,.4);--glow-accent:rgba(0,212,170,.3);
---teal:#00D4AA;--teal-dim:rgba(0,212,170,.1);
---orange:#FF6B35;--orange-dim:rgba(255,107,53,.1);
---yellow:#FFC107;--yellow-dim:rgba(255,193,7,.1);
---red:#EF4444;--green:#00D4AA;--green-dim:rgba(0,212,170,.1);
---purple-dim:rgba(139,92,246,.1);
---shadow:0 20px 50px rgba(0,0,0,.5);
+:root {
+  --bg-base: #0a0a0f;
+  --bg-elev: #14141c;
+  --bg-glass: rgba(255,255,255,0.04);
+  --bg-glass-strong: rgba(255,255,255,0.08);
+  --gold: #FFD166;
+  --orange: #FF6B35;
+  --teal: #00D4AA;
+  --line-green: #06C755;
+  --text-primary: #f4f4f8;
+  --text-secondary: #9a9aa8;
+  --border-subtle: rgba(255,255,255,0.08);
+  --border-gold: rgba(255,209,102,0.3);
+  --grid-line: rgba(255,209,102,0.06);
 }
-[data-theme="light"]{
---bg0:#FAFAFA;--bg1:#FFF;--bg2:#F2F2F4;--bg3:#E8E8EC;--bg4:#DDDDE4;
---text0:#1A1A1F;--text1:#666670;--text2:#9999A3;
---border:rgba(0,0,0,.06);--border2:rgba(0,0,0,.12);
---primary:#E85520;--orange:#E85520;
---shadow:0 8px 30px rgba(0,0,0,.1);
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html { background: var(--bg-base); }
+body {
+  background: transparent;
+  color: var(--text-primary);
+  font-family: 'Noto Sans TC', system-ui, sans-serif;
+  min-height: 100vh;
+  overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
 }
-*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
-html{scroll-behavior:smooth}
-body{font-family:'Noto Sans TC',sans-serif;background:var(--bg0);color:var(--text0);line-height:1.75;overflow-x:hidden;min-height:100vh}
-#particles{position:fixed;inset:0;pointer-events:none;z-index:0}
-.particle{position:absolute;border-radius:50%;opacity:0;animation:floatUp linear infinite}
-@keyframes floatUp{0%{opacity:0;transform:translateY(100vh) scale(0)}10%{opacity:.7}90%{opacity:.4}100%{opacity:0;transform:translateY(-10vh) scale(1)}}
-.mouse-glow{position:fixed;width:520px;height:520px;background:radial-gradient(circle,var(--glow-primary) 0%,transparent 70%);border-radius:50%;pointer-events:none;transform:translate(-50%,-50%);z-index:1;opacity:0;transition:opacity .5s;filter:blur(44px)}
-body:hover .mouse-glow{opacity:.55}
-.bg-effects{position:fixed;inset:0;pointer-events:none;z-index:0;background:radial-gradient(ellipse at 15% 15%,rgba(255,107,53,.07) 0%,transparent 52%),radial-gradient(ellipse at 85% 85%,rgba(0,212,170,.05) 0%,transparent 52%),linear-gradient(rgba(255,255,255,.011) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.011) 1px,transparent 1px);background-size:100%,100%,100px 100px,100px 100px}
+.idle-bg {
+  position: fixed; inset: 0;
+  width: 100%; height: 100%;
+  object-fit: cover;
+  z-index: 0;
+  pointer-events: none;
+  opacity: 0;
+  animation: idle-entry 3.4s cubic-bezier(0.2, 0.7, 0.2, 1) forwards;
+}
+.idle-tint {
+  position: fixed; inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background:
+    linear-gradient(180deg, rgba(10,10,15,0.15) 0%, rgba(10,10,15,0.35) 55%, rgba(10,10,15,0.65) 100%);
+}
+@keyframes idle-entry {
+  0%   { opacity: 0; transform: scale(1.18); filter: brightness(1.4) blur(8px); }
+  18%  { opacity: 1; }
+  45%  { opacity: 1; transform: scale(1.06); filter: brightness(1.1) blur(0px); }
+  100% { opacity: 0.85; transform: scale(1); filter: brightness(1) blur(0px); }
+}
+body::before {
+  content: ''; position: fixed; inset: 0; z-index: 0;
+  background-image:
+    linear-gradient(var(--grid-line) 1px, transparent 1px),
+    linear-gradient(90deg, var(--grid-line) 1px, transparent 1px);
+  background-size: 48px 48px;
+  pointer-events: none;
+  opacity: 0.5;
+  -webkit-mask-image: radial-gradient(ellipse at center, black 30%, transparent 80%);
+  mask-image: radial-gradient(ellipse at center, black 30%, transparent 80%);
+}
+body::after {
+  content: ''; position: fixed; inset: 0; z-index: 0;
+  background:
+    radial-gradient(ellipse 80% 50% at 50% 0%, rgba(220,38,38,0.10), transparent 70%),
+    radial-gradient(ellipse 60% 40% at 100% 100%, rgba(139,92,246,0.10), transparent 70%);
+  pointer-events: none;
+}
+.mono { font-family: 'Orbitron', monospace; letter-spacing: 0.05em; }
 
-/* NAV */
-.nav{position:fixed;top:0;left:0;right:0;z-index:1000;padding:14px 40px;background:rgba(8,8,10,.78);backdrop-filter:blur(24px) saturate(180%);border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center}
-[data-theme="light"] .nav{background:rgba(255,255,255,.82)}
-.nav-inner{display:flex;align-items:center;gap:10px;width:100%;max-width:1200px;margin:0 auto}
-.nav-logo{font-weight:800;font-size:1rem;color:var(--text0);display:flex;align-items:center;gap:10px;flex-shrink:0;margin-right:14px;white-space:nowrap}
-.nav-logo-icon{width:36px;height:36px;background:linear-gradient(135deg,var(--primary),var(--primary-light));border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:17px;box-shadow:0 0 20px var(--glow-primary);animation:logoPulse 3s ease-in-out infinite}
-@keyframes logoPulse{0%,100%{box-shadow:0 0 20px var(--glow-primary)}50%{box-shadow:0 0 35px var(--glow-primary)}}
-.nav-ver{display:flex;gap:5px;flex-shrink:0;background:var(--bg2);border:1px solid var(--border);border-radius:12px;padding:4px}
-.nav-ver-btn{padding:7px 16px;border-radius:9px;font-size:.78rem;font-weight:700;border:none;background:transparent;color:var(--text1);cursor:pointer;transition:.25s;white-space:nowrap}
-.nav-ver-btn.on{background:linear-gradient(135deg,var(--primary),var(--primary-light));color:#fff;box-shadow:0 4px 14px var(--glow-primary)}
-.nav-ver-btn:not(.on):hover{color:var(--text0);background:rgba(255,255,255,.06)}
-.nav-tabs{display:flex;gap:2px;flex:1;overflow-x:auto;scrollbar-width:none;margin:0 10px}
-.nav-tabs::-webkit-scrollbar{display:none}
-.nav-btn{padding:8px 14px;border-radius:10px;font-size:.79rem;font-weight:500;color:var(--text1);border:none;background:transparent;cursor:pointer;white-space:nowrap;transition:.25s}
-.nav-btn:hover{color:var(--text0);background:var(--bg2)}
-.nav-btn.on{color:var(--primary);background:var(--orange-dim)}
-.nav-theme{width:40px;height:40px;border-radius:12px;border:1px solid var(--border);background:var(--bg2);color:var(--text0);cursor:pointer;font-size:18px;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:.3s;margin-left:auto}
-.nav-theme:hover{background:var(--primary);border-color:var(--primary);transform:rotate(180deg)}
+.header {
+  position: sticky; top: 0; z-index: 50;
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  background: rgba(10,10,15,0.7);
+  border-bottom: 1px solid var(--border-subtle);
+  padding: 10px 14px;
+  display: flex; align-items: center; gap: 10px;
+}
+.user-pill {
+  display: flex; align-items: center; gap: 6px;
+  padding: 4px 10px 4px 4px;
+  background: var(--bg-glass);
+  border: 1px solid var(--border-subtle);
+  border-radius: 999px;
+  font-size: 12px;
+  flex-shrink: 0;
+}
+.user-pill .avatar-svg {
+  width: 28px; height: 28px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #FFD166, #FF6B35);
+  display: flex; align-items: center; justify-content: center;
+  overflow: hidden;
+}
+.user-pill .avatar-svg svg { width: 24px; height: 24px; transform: translateY(2px); }
+.metrics { display: flex; flex: 1; justify-content: flex-end; align-items: center; }
+.metric {
+  display: flex; flex-direction: column; align-items: center;
+  padding: 2px 10px;
+  border-left: 1px solid var(--border-subtle);
+}
+.metric:first-child { border-left: none; }
+.metric .label {
+  font-size: 9px;
+  letter-spacing: 0.1em;
+  color: var(--text-secondary);
+  font-weight: 500;
+}
+.metric .value {
+  font-family: 'Orbitron', monospace;
+  font-size: 14px; font-weight: 900;
+  color: var(--gold);
+  text-shadow: 0 0 12px rgba(255,209,102,0.5);
+}
+.metric.teal .value { color: var(--teal); text-shadow: 0 0 12px rgba(0,212,170,0.5); }
 
-.wrap{max-width:1200px;margin:0 auto;padding:0 40px;position:relative;z-index:10}
-.section{padding:90px 0}
-.divider{height:1px;background:linear-gradient(90deg,transparent,var(--border),transparent)}
-.ver-page{display:none}.ver-page.active{display:block}
+.stage { position: relative; z-index: 1; padding: calc(env(safe-area-inset-top, 0px) + 28px) 14px 140px; max-width: 480px; margin: 0 auto; }
+.title-block { text-align: center; padding: 12px 0 20px; }
+.kicker {
+  font-size: 13px; letter-spacing: 0.3em;
+  color: var(--orange);
+  margin-bottom: 8px;
+  position: relative; display: inline-block;
+  font-weight: 700;
+}
+.kicker::before, .kicker::after {
+  content: ''; position: absolute; top: 50%; width: 24px; height: 1px;
+  background: linear-gradient(to right, transparent, var(--orange));
+}
+.kicker::before { right: calc(100% + 10px); transform: scaleX(-1); }
+.kicker::after { left: calc(100% + 10px); }
+.title {
+  font-size: 40px; font-weight: 900;
+  line-height: 1.05;
+  background: linear-gradient(135deg, #FBBF24 0%, #F97316 50%, #DC2626 100%);
+  -webkit-background-clip: text; background-clip: text;
+  -webkit-text-fill-color: transparent;
+  margin-bottom: 8px;
+  letter-spacing: 0.04em;
+}
+.subtitle { font-size: 14px; color: var(--text-secondary); letter-spacing: 0.05em; line-height: 1.5; }
 
-/* HERO */
-.hero{padding:140px 40px 96px;text-align:center;position:relative;overflow:hidden;max-width:1200px;margin:0 auto}
-.hero-glow{position:absolute;top:-80px;left:50%;transform:translateX(-50%);width:800px;height:420px;background:radial-gradient(ellipse,rgba(255,107,53,.09) 0%,transparent 65%);pointer-events:none}
-.hero-eyebrow{display:inline-flex;align-items:center;gap:10px;padding:8px 18px;border-radius:100px;border:1px solid var(--border2);background:var(--bg1);font-size:.78rem;font-weight:500;color:var(--text1);margin-bottom:28px}
-.hero-dot-green{width:8px;height:8px;border-radius:50%;background:var(--accent);box-shadow:0 0 10px var(--glow-accent);animation:pulse 2s infinite}
-@keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.5;transform:scale(1.5)}}
-.hero-title{font-size:clamp(2.2rem,5.5vw,3.8rem);font-weight:900;line-height:1.08;letter-spacing:-.03em;margin-bottom:20px;background:linear-gradient(135deg,var(--text0) 0%,var(--primary) 55%,var(--accent) 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
-.hero-title .hl{background:none;-webkit-text-fill-color:var(--primary)}
-.hero-desc{font-size:1rem;color:var(--text1);max-width:560px;margin:0 auto 40px;line-height:1.9}
-.hero-stats{display:flex;justify-content:center;gap:52px;flex-wrap:wrap}
-.hstat{text-align:center}
-.hstat-val{font-size:2.4rem;font-weight:900;color:var(--primary);text-shadow:0 0 30px var(--glow-primary)}
-.hstat-lbl{font-size:.75rem;color:var(--text2);margin-top:5px;font-weight:500}
+.round-info {
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 12px 14px;
+  background: var(--bg-glass);
+  border: 1px solid var(--border-subtle);
+  border-radius: 12px;
+  margin-bottom: 14px;
+}
+.round-info .num { font-family: 'Orbitron', monospace; font-size: 22px; font-weight: 900; color: var(--gold); }
+.round-info .lbl { font-size: 12px; color: var(--text-secondary); letter-spacing: 0.1em; margin-bottom: 2px; }
 
-/* SECTION HEADER */
-.sh{margin-bottom:40px}
-.sh-tag{display:inline-flex;align-items:center;gap:7px;padding:6px 14px;border-radius:8px;font-size:.72rem;font-weight:700;letter-spacing:.07em;text-transform:uppercase;margin-bottom:14px}
-.t-blue{background:rgba(59,130,246,.12);color:var(--blue);border:1px solid rgba(59,130,246,.25)}
-.t-teal{background:var(--teal-dim);color:var(--teal);border:1px solid rgba(0,212,170,.25)}
-.t-orange{background:var(--orange-dim);color:var(--primary);border:1px solid rgba(255,107,53,.25)}
-.t-green{background:var(--green-dim);color:var(--accent);border:1px solid rgba(0,212,170,.25)}
-.t-purple{background:var(--purple-dim);color:var(--purple);border:1px solid rgba(139,92,246,.25)}
-.t-yellow{background:var(--yellow-dim);color:var(--yellow);border:1px solid rgba(255,193,7,.25)}
-.t-red{background:rgba(239,68,68,.08);color:var(--red);border:1px solid rgba(239,68,68,.2)}
-.sh-title{font-size:2rem;font-weight:800;letter-spacing:-.025em;margin-bottom:9px}
-.sh-desc{font-size:.95rem;color:var(--text1);max-width:600px}
+.bey-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 24px; }
+.bey-card {
+  position: relative;
+  padding: 12px;
+  background: linear-gradient(180deg, var(--bg-glass-strong), var(--bg-glass));
+  border: 1px solid var(--border-subtle);
+  border-radius: 14px;
+  cursor: pointer;
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  overflow: hidden;
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-tap-highlight-color: transparent;
+  aspect-ratio: 3 / 4;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  perspective: 800px;
+}
+.bey-card::before {
+  content: '';
+  position: absolute; inset: 0;
+  background: linear-gradient(135deg, transparent 30%, var(--accent, var(--gold)) 250%);
+  opacity: 0.10;
+  pointer-events: none;
+  z-index: 1;
+}
+.bey-bg {
+  position: absolute; inset: 0;
+  width: 100%; height: 100%;
+  object-fit: cover;
+  object-position: center top;
+  opacity: 1;
+  z-index: 0;
+  pointer-events: none;
+  -webkit-mask-image: linear-gradient(180deg, #000 0%, #000 70%, rgba(0,0,0,0.55) 92%, transparent 100%);
+  mask-image: linear-gradient(180deg, #000 0%, #000 70%, rgba(0,0,0,0.55) 92%, transparent 100%);
+}
+.bey-card[data-id="gaiye"] .bey-bg { transform: scaleX(-1); }
+.bey-mask {
+  position: absolute;
+  right: 0; bottom: 0;
+  width: 100px; height: 100px;
+  background: radial-gradient(circle at bottom right,
+    rgba(0,0,0,0.92) 0%,
+    rgba(0,0,0,0.6) 45%,
+    rgba(0,0,0,0.25) 70%,
+    transparent 100%);
+  z-index: 2;
+  pointer-events: none;
+  border-bottom-right-radius: inherit;
+}
+.bey-fx {
+  position: absolute; inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  border-radius: inherit;
+  overflow: hidden;
+}
+.bey-fx::before {
+  content: ''; position: absolute; inset: -2px;
+  background: radial-gradient(ellipse at 50% 30%, var(--accent-glow, rgba(255,209,102,0.3)) 0%, transparent 65%);
+  opacity: 0.45;
+  mix-blend-mode: screen;
+  animation: fx-pulse 3.2s ease-in-out infinite alternate;
+}
+.bey-fx::after {
+  content: ''; position: absolute;
+  top: -50%; left: -75%;
+  width: 60%; height: 200%;
+  background: linear-gradient(115deg, transparent 30%, rgba(255,255,255,0.18) 50%, transparent 70%);
+  transform: skewX(-18deg);
+  animation: fx-sweep 4.8s ease-in-out infinite;
+  mix-blend-mode: screen;
+}
+@keyframes fx-pulse {
+  from { opacity: 0.25; }
+  to { opacity: 0.65; }
+}
+@keyframes fx-sweep {
+  0% { left: -75%; }
+  55%, 100% { left: 130%; }
+}
+.bey-card[data-selected="true"] .bey-fx::before { opacity: 0.9; animation-duration: 1.6s; }
+.bey-card[data-selected="true"] .bey-fx::after { animation-duration: 2.4s; }
+.bey-card > .bey-winrate,
+.bey-card > .bey-visual,
+.bey-card > .bey-name,
+.bey-card > .bey-type,
+.bey-card > .bey-stats { position: relative; z-index: 2; }
+.bey-card[data-selected="true"] {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 1px var(--accent), 0 0 24px var(--accent-glow, rgba(255,209,102,0.4));
+  transform: translateY(-3px);
+}
+.bey-card[data-selected="true"]::after {
+  content: '已選';
+  position: absolute; top: 8px; right: 8px;
+  font-size: 10px; letter-spacing: 0.1em;
+  padding: 3px 8px;
+  background: var(--accent);
+  color: #0a0a0f;
+  border-radius: 4px;
+  font-weight: 900;
+}
+.bey-visual {
+  position: absolute;
+  right: 4px; bottom: 4px;
+  width: 88px; height: 88px;
+  pointer-events: none;
+  z-index: 3;
+}
+.bey-card .bey-name,
+.bey-card .bey-type,
+.bey-card .bey-stats { padding-right: 96px; }
+.bey-visual::before {
+  content: '';
+  position: absolute;
+  left: 6%; right: 6%;
+  bottom: -8px; height: 16px;
+  background: radial-gradient(ellipse at center, rgba(0,0,0,0.78) 0%, transparent 70%);
+  filter: blur(4px);
+  z-index: 0;
+  animation: shadow-pulse 2.2s ease-in-out infinite alternate;
+}
+.bey-visual::after {
+  content: '';
+  position: absolute; inset: -14% -14% -2% -14%;
+  background:
+    radial-gradient(ellipse 60% 35% at 50% 55%, var(--accent-glow, rgba(255,209,102,0.5)) 0%, transparent 65%);
+  filter: blur(6px);
+  z-index: 0;
+  animation: aura-pulse 2.6s ease-in-out infinite alternate;
+  mix-blend-mode: screen;
+}
+.bey-tilt {
+  position: absolute; inset: 0;
+  z-index: 2;
+  animation: bey-bob 2.4s ease-in-out infinite alternate;
+}
+@keyframes bey-bob {
+  from { transform: translateY(0) rotate(-2deg); }
+  to   { transform: translateY(-3px) rotate(2deg); }
+}
+.bey-tilt::before {
+  content: '';
+  position: absolute; inset: 4%;
+  border-radius: 50%;
+  background:
+    conic-gradient(from 0deg, transparent 0deg, var(--accent, #FFD166) 30deg, transparent 60deg, transparent 180deg, var(--accent, #FFD166) 210deg, transparent 240deg, transparent 360deg);
+  filter: blur(2px);
+  opacity: 0.65;
+  transform: translateZ(-3px);
+  animation: spin calc(var(--spin-speed, 3s) * 0.55) linear infinite reverse;
+  mix-blend-mode: screen;
+}
+.bey-tilt::after {
+  content: '';
+  position: absolute; inset: -8%;
+  border: 1.5px solid var(--accent, #FFD166);
+  border-radius: 50%;
+  opacity: 0.6;
+  transform: translateZ(2px);
+  box-shadow:
+    0 0 12px var(--accent-glow, rgba(255,209,102,0.6)),
+    inset 0 0 10px var(--accent-glow, rgba(255,209,102,0.4));
+  animation: ring-pulse 1.8s ease-in-out infinite alternate;
+}
+.bey-tilt svg,
+.bey-tilt img {
+  width: 100%; height: 100%;
+  position: relative; z-index: 3;
+  animation: spin var(--spin-speed, 3s) linear infinite;
+  object-fit: contain;
+  filter:
+    drop-shadow(0 2px 0 rgba(0,0,0,0.65))
+    drop-shadow(0 4px 0 rgba(0,0,0,0.4))
+    drop-shadow(0 10px 16px var(--accent-glow, rgba(0,0,0,0.5)));
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+@keyframes bey-precess {
+  from { transform: rotateX(60deg) rotateZ(-12deg) translateY(0); }
+  to   { transform: rotateX(66deg) rotateZ(-6deg)  translateY(-4px); }
+}
+@keyframes shadow-pulse {
+  from { transform: scaleX(1);    opacity: 0.85; }
+  to   { transform: scaleX(0.85); opacity: 0.5; }
+}
+@keyframes aura-pulse {
+  from { opacity: 0.5; transform: scale(1); }
+  to   { opacity: 0.95; transform: scale(1.08); }
+}
+@keyframes ring-pulse {
+  from { opacity: 0.35; box-shadow: 0 0 6px var(--accent-glow), inset 0 0 6px var(--accent-glow); }
+  to   { opacity: 0.85; box-shadow: 0 0 22px var(--accent-glow), inset 0 0 14px var(--accent-glow); }
+}
+.bey-card[data-selected="true"] .bey-tilt::after { opacity: 1; animation-duration: 0.9s; }
+.bey-card[data-selected="true"] .bey-visual::after { opacity: 1; }
+.bey-name { font-size: 18px; font-weight: 900; color: var(--text-primary); margin-bottom: 3px; letter-spacing: 0.04em; line-height: 1.15; }
+.bey-type { font-size: 12px; color: var(--accent); letter-spacing: 0.12em; font-weight: 700; margin-bottom: 10px; }
+.bey-stats { display: flex; gap: 5px; }
+.bey-stat { flex: 1; display: flex; flex-direction: column; gap: 3px; }
+.bey-stat .lbl { font-size: 10px; color: var(--text-secondary); font-weight: 500; }
+.bey-stat .bar { height: 4px; background: rgba(255,255,255,0.06); border-radius: 2px; overflow: hidden; }
+.bey-stat .bar > span { display: block; height: 100%; background: var(--accent); border-radius: 2px; }
+.bey-winrate {
+  position: absolute; top: 10px; left: 10px;
+  font-family: 'Orbitron', monospace;
+  font-size: 14px; font-weight: 900;
+  color: var(--accent);
+  letter-spacing: 0.05em;
+  z-index: 1;
+  text-shadow: 0 0 10px var(--accent-glow);
+}
 
-/* CARDS */
-.card{background:var(--bg1);border:1px solid var(--border);border-radius:22px;padding:32px;transition:all .4s cubic-bezier(.16,1,.3,1);backdrop-filter:blur(12px)}
-.card:hover{border-color:var(--border2);transform:translateY(-5px);box-shadow:var(--shadow)}
-.card-h{display:flex;align-items:center;gap:14px;margin-bottom:16px}
-.card-ico{width:44px;height:44px;border-radius:12px;background:var(--bg3);display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0}
-.card-title{font-size:1rem;font-weight:700}
-.g2{display:grid;grid-template-columns:repeat(auto-fit,minmax(340px,1fr));gap:24px}
-.g3{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:22px}
+.section-head {
+  display: flex; align-items: baseline; justify-content: space-between;
+  margin-bottom: 12px;
+}
+.section-head .lbl {
+  font-size: 15px;
+  letter-spacing: 0.15em;
+  color: var(--gold);
+  font-weight: 700;
+}
+.section-head .lbl::before {
+  content: '◆';
+  margin-right: 8px;
+  color: var(--orange);
+}
+.section-head .meta {
+  font-family: 'Orbitron', monospace;
+  font-size: 11px;
+  color: var(--text-secondary);
+  letter-spacing: 0.15em;
+}
+.prize-progress {
+  display: flex; align-items: center; gap: 10px;
+  padding: 10px 14px;
+  background: var(--bg-glass);
+  border: 1px solid var(--border-subtle);
+  border-radius: 12px;
+  margin-bottom: 12px;
+  font-size: 12px;
+  color: var(--text-secondary);
+  letter-spacing: 0.05em;
+}
+.prize-progress .num {
+  font-family: 'Orbitron', monospace;
+  font-size: 18px; font-weight: 900;
+  color: var(--gold);
+  text-shadow: 0 0 12px rgba(255,209,102,0.5);
+}
+.prize-progress .next { color: var(--teal); font-weight: 700; }
+.prize-scroll {
+  display: flex; gap: 10px;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  -webkit-overflow-scrolling: touch;
+  margin: 0 -14px 24px;
+  padding: 0 14px 12px;
+  scrollbar-width: none;
+}
+.prize-scroll::-webkit-scrollbar { display: none; }
+.prize-card {
+  flex: 0 0 132px;
+  background:
+    linear-gradient(180deg, var(--bg-glass-strong), var(--bg-glass));
+  border: 1px dashed var(--border-gold);
+  border-radius: 12px;
+  scroll-snap-align: start;
+  display: flex; flex-direction: column; align-items: center;
+  padding: 14px 10px 12px;
+  text-align: center;
+  position: relative;
+  transition: all 0.25s ease;
+}
+.prize-card .tier {
+  font-family: 'Orbitron', monospace;
+  font-size: 11px;
+  color: var(--text-secondary);
+  letter-spacing: 0.1em;
+  margin-bottom: 4px;
+  font-weight: 700;
+}
+.prize-card .tier strong {
+  color: var(--gold);
+  font-size: 22px;
+  font-weight: 900;
+  margin-right: 2px;
+}
+.prize-card .cash {
+  font-family: 'Orbitron', monospace;
+  font-size: 18px;
+  font-weight: 900;
+  color: var(--orange);
+  letter-spacing: 0.02em;
+  margin: 6px 0 4px;
+  line-height: 1.1;
+}
+.prize-card .cash .unit {
+  font-size: 10px;
+  color: var(--text-secondary);
+  letter-spacing: 0.1em;
+  margin-right: 2px;
+  font-weight: 500;
+}
+.prize-card .bonus {
+  font-size: 11px;
+  color: var(--teal);
+  letter-spacing: 0.05em;
+  font-weight: 700;
+  padding: 4px 8px;
+  background: rgba(0,212,170,0.10);
+  border: 1px solid rgba(0,212,170,0.25);
+  border-radius: 6px;
+  margin-top: 4px;
+  line-height: 1.3;
+}
+.prize-card .lock {
+  position: absolute; top: 8px; right: 8px;
+  font-size: 12px;
+  opacity: 0.55;
+}
+.prize-card[data-state="unlocked"] {
+  border-style: solid;
+  border-color: var(--gold);
+  background: linear-gradient(180deg, rgba(255,209,102,0.10), rgba(255,107,53,0.04));
+  box-shadow: 0 0 16px rgba(255,209,102,0.18);
+}
+.prize-card[data-state="unlocked"] .lock { opacity: 0; }
+.prize-card[data-state="unlocked"]::after {
+  content: '可兌換';
+  position: absolute; top: 6px; right: 6px;
+  font-size: 9px; letter-spacing: 0.1em;
+  padding: 2px 6px;
+  background: var(--gold); color: #0a0a0f;
+  border-radius: 3px;
+  font-weight: 900;
+}
+.prize-card[data-state="next"] {
+  border-color: var(--teal);
+  border-style: solid;
+  box-shadow: 0 0 12px rgba(0,212,170,0.18);
+}
+.prize-card[data-state="next"]::after {
+  content: '下一檔';
+  position: absolute; top: 6px; right: 6px;
+  font-size: 9px; letter-spacing: 0.1em;
+  padding: 2px 6px;
+  background: var(--teal); color: #0a0a0f;
+  border-radius: 3px;
+  font-weight: 900;
+}
 
-/* FUNNEL */
-.funnel{display:flex;flex-direction:column;max-width:900px;margin:0 auto}
-.f-row{display:flex;cursor:pointer;transition:all .35s cubic-bezier(.16,1,.3,1);border-bottom:1px solid var(--border)}
-.f-row:hover{transform:scale(1.005)}
-.f-row:last-child{border-bottom:none}
-.f-bar{display:flex;align-items:center;justify-content:center;flex-shrink:0}
-.f-num{font-size:15px;font-weight:900;color:#fff;width:36px;height:36px;display:flex;align-items:center;justify-content:center;border-radius:50%;background:rgba(0,0,0,.25);backdrop-filter:blur(6px)}
-.f-body{flex:1;padding:18px 24px;background:var(--bg1)}
-.f-title{font-size:1.05rem;font-weight:800;color:var(--primary);margin-bottom:4px}
-.f-sub{font-size:.82rem;color:var(--text1);margin-bottom:10px}
-.f-chips{display:flex;flex-wrap:wrap;gap:5px}
-.chip{padding:4px 12px;border-radius:8px;font-size:.76rem;font-weight:500;background:var(--bg2);border:1px solid var(--border);color:var(--text1);transition:.2s}
-.chip.on{color:var(--green);border-color:rgba(0,212,170,.2);background:rgba(0,212,170,.05)}
-.chip.half{color:var(--yellow);border-color:rgba(255,193,7,.2);background:rgba(255,193,7,.05)}
-.chip.off{color:var(--red);border-color:rgba(239,68,68,.15);background:rgba(239,68,68,.05)}
-.chip.plan{color:var(--text2)}
-.f-row:nth-child(1) .f-bar{width:100px;background:linear-gradient(135deg,#FF6B35,#FF8C5A);border-radius:16px 0 0 0}
-.f-row:nth-child(2) .f-bar{width:88px;background:linear-gradient(135deg,#E85A2A,#FF6B35)}
-.f-row:nth-child(3) .f-bar{width:76px;background:linear-gradient(135deg,#CC4A20,#E85A2A)}
-.f-row:nth-child(4) .f-bar{width:64px;background:linear-gradient(135deg,#B03A18,#CC4A20)}
-.f-row:nth-child(5) .f-bar{width:52px;background:linear-gradient(135deg,var(--accent),#33DDBB);border-radius:0 0 0 16px}
-.f-row:nth-child(1) .f-body{border-radius:0 16px 0 0}
-.f-row:nth-child(5) .f-body{border-radius:0 0 16px 0}
+.battle-btn {
+  position: fixed;
+  left: 14px; right: 14px; bottom: 14px;
+  max-width: 452px;
+  margin: 0 auto;
+  padding: 20px;
+  background: linear-gradient(135deg, #DC2626, #F97316, #FBBF24);
+  color: #0a0a0f;
+  font-weight: 900;
+  font-size: 19px;
+  letter-spacing: 0.22em;
+  border: none;
+  border-radius: 16px;
+  cursor: pointer;
+  box-shadow: 0 8px 24px rgba(220,38,38,0.4), 0 0 60px rgba(251,191,36,0.2);
+  z-index: 40;
+  transition: all 0.2s;
+}
+.battle-btn:disabled {
+  background: var(--bg-glass-strong);
+  color: var(--text-secondary);
+  box-shadow: none;
+  cursor: not-allowed;
+}
+.battle-btn:not(:disabled):active { transform: translateY(2px); }
 
-/* DETAIL OVERLAY */
-.ov{display:none;position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:2000;backdrop-filter:blur(6px);justify-content:center;align-items:flex-start;padding:80px 40px 40px;overflow-y:auto}
-.ov.open{display:flex}
-.panel{background:var(--bg1);border:1.5px solid var(--border2);border-radius:22px;max-width:800px;width:100%;animation:slideUp .35s cubic-bezier(.16,1,.3,1)}
-@keyframes slideUp{from{opacity:0;transform:translateY(30px)}to{opacity:1;transform:translateY(0)}}
-.panel-head{display:flex;align-items:center;gap:14px;padding:24px 32px;border-bottom:1px solid var(--border)}
-.panel-num{width:44px;height:44px;border-radius:50%;background:linear-gradient(135deg,var(--primary),var(--primary-light));color:#fff;display:flex;align-items:center;justify-content:center;font-size:17px;font-weight:900;box-shadow:0 0 20px var(--glow-primary)}
-.panel-title{font-size:1.25rem;font-weight:900;color:var(--primary)}
-.panel-sub{font-size:.85rem;color:var(--text1);margin-top:2px}
-.panel-close{margin-left:auto;width:38px;height:38px;border-radius:10px;border:1px solid var(--border);background:var(--bg2);color:var(--text1);cursor:pointer;font-size:16px;display:flex;align-items:center;justify-content:center;transition:.2s}
-.panel-close:hover{background:var(--red);border-color:var(--red);color:#fff}
-.panel-body{padding:28px 32px}
-.d-grp{font-size:.75rem;font-weight:700;color:var(--text1);letter-spacing:1.5px;margin:22px 0 10px;padding-bottom:6px;border-bottom:1px solid var(--border)}
-.d-grp:first-child{margin-top:0}
-.d-grp.inc{color:var(--green);border-color:rgba(0,212,170,.15)}
-.d-grp.exp{color:var(--red);border-color:rgba(239,68,68,.1)}
-.d-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
-.d-card{background:var(--bg2);border:1.5px solid var(--border);border-radius:16px;padding:16px 20px;transition:all .35s cubic-bezier(.16,1,.3,1);backdrop-filter:blur(8px)}
-.d-card:hover{border-color:var(--primary);transform:translateY(-4px);box-shadow:0 14px 35px rgba(0,0,0,.25)}
-[data-theme="light"] .d-card:hover{box-shadow:0 8px 20px rgba(0,0,0,.06)}
-.d-card-n{font-weight:700;font-size:.92rem;margin-bottom:4px}
-.d-card-d{font-size:.8rem;color:var(--text1);line-height:1.6}
-.d-card-s{font-size:.72rem;margin-top:6px;font-weight:600}
-.s-on{color:var(--green)}.s-half{color:var(--yellow)}.s-off{color:var(--red)}.s-plan{color:var(--text2)}
+.mascot {
+  position: fixed;
+  bottom: 90px; right: 12px;
+  z-index: 30;
+  display: flex; align-items: flex-end; gap: 6px;
+  animation: mascot-bob 1.6s cubic-bezier(0.5, 0, 0.5, 1) infinite alternate;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  user-select: none;
+  -webkit-user-select: none;
+}
+@keyframes mascot-bob {
+  0%   { transform: translateY(0) rotate(-1.2deg); }
+  50%  { transform: translateY(-3px) rotate(0.6deg); }
+  100% { transform: translateY(-9px) rotate(1.6deg); }
+}
+.mascot.poke .figure { animation: mascot-poke 0.45s cubic-bezier(0.34, 1.56, 0.64, 1); }
+@keyframes mascot-poke {
+  0%   { transform: scale(1) rotate(0); }
+  35%  { transform: scale(1.18) rotate(-8deg); }
+  65%  { transform: scale(0.94) rotate(6deg); }
+  100% { transform: scale(1) rotate(0); }
+}
+.mascot .bubble { transition: opacity 0.18s ease, transform 0.18s ease; }
+.mascot .bubble.swap { opacity: 0; transform: translateY(4px) scale(0.96); }
+.mascot .bubble {
+  background: var(--bg-glass-strong);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid var(--border-subtle);
+  padding: 10px 14px;
+  border-radius: 14px 14px 4px 14px;
+  font-size: 13px;
+  max-width: 180px;
+  line-height: 1.5;
+  color: var(--text-primary);
+}
+.mascot .figure {
+  width: 92px; height: 130px;
+  object-fit: contain;
+  filter: drop-shadow(0 6px 18px rgba(255,209,102,0.35));
+  flex-shrink: 0;
+}
 
-/* CALC */
-.calc-summary{display:grid;grid-template-columns:1fr 1fr 1fr;gap:18px;margin-bottom:36px}
-.sum-card{background:var(--bg1);border:1.5px solid var(--border);border-radius:20px;padding:24px;text-align:center;backdrop-filter:blur(10px);transition:all .35s}
-.sum-card:hover{transform:translateY(-4px);box-shadow:var(--shadow)}
-.sum-card.si{border-color:var(--green);box-shadow:0 0 25px rgba(0,212,170,.1)}
-.sum-card.se{border-color:var(--red);box-shadow:0 0 25px rgba(239,68,68,.1)}
-.sum-card.sp{border-color:var(--primary);box-shadow:0 0 25px rgba(255,107,53,.1)}
-.sum-lbl{font-size:.72rem;font-weight:700;color:var(--text2);letter-spacing:.05em;margin-bottom:6px}
-.sum-val{font-family:'JetBrains Mono',monospace;font-size:1.8rem;font-weight:900;line-height:1}
-.sum-card.si .sum-val{color:var(--green)}.sum-card.se .sum-val{color:var(--red)}.sum-card.sp .sum-val{color:var(--primary)}
-.sum-card.sp.neg .sum-val{color:var(--red)}
-.calc-chart-wrap{background:var(--bg1);border:1px solid var(--border);border-radius:22px;padding:28px;margin-bottom:36px;backdrop-filter:blur(10px)}
-.calc-chart-title{font-size:.85rem;font-weight:700;color:var(--text1);margin-bottom:16px}
-.calc-sec{margin-bottom:28px}
-.calc-head{display:flex;align-items:center;gap:8px;margin-bottom:14px;padding-bottom:8px;border-bottom:1px solid var(--border)}
-.calc-tag{padding:5px 14px;border-radius:8px;font-size:.72rem;font-weight:700;letter-spacing:.04em}
-.calc-tag.cg{background:rgba(0,212,170,.1);color:var(--green);border:1px solid rgba(0,212,170,.25)}
-.calc-tag.cr{background:rgba(239,68,68,.08);color:var(--red);border:1px solid rgba(239,68,68,.2)}
-.calc-tag.cp{background:rgba(255,107,53,.1);color:var(--primary);border:1px solid rgba(255,107,53,.25)}
-.calc-title{font-size:1rem;font-weight:800}
-.calc-sub{margin-left:auto;font-family:'JetBrains Mono',monospace;font-size:.88rem;font-weight:700;color:var(--text1)}
-.crow{display:flex;align-items:center;gap:14px;padding:14px 20px;background:var(--bg1);border:1.5px solid var(--border);border-radius:14px;margin-bottom:8px;transition:all .3s cubic-bezier(.16,1,.3,1)}
-.crow:hover{border-color:var(--border2);transform:translateX(5px)}
-.crow-info{flex:1;min-width:0}
-.crow-n{font-size:.9rem;font-weight:700;margin-bottom:2px}
-.crow-d{font-size:.76rem;color:var(--text2)}
-.crow-in{width:130px;flex-shrink:0}
-.crow-in input{width:100%;padding:9px 14px;border-radius:10px;border:1.5px solid var(--border2);background:var(--bg3);color:var(--text0);font-family:'JetBrains Mono',monospace;font-size:.88rem;text-align:right;outline:none;transition:.25s}
-.crow-in input:focus{border-color:var(--primary);box-shadow:0 0 14px rgba(255,107,53,.2)}
-.crow-in input::placeholder{color:var(--text2)}
-.kpi-card{display:flex;align-items:center;gap:16px;padding:20px 24px;background:var(--bg1);border:1.5px solid var(--border);border-radius:18px;margin-bottom:10px;transition:all .35s}
-.kpi-card:hover{border-color:var(--primary);transform:translateX(5px);box-shadow:-5px 0 20px rgba(255,107,53,.12)}
-.kpi-ico{width:40px;height:40px;border-radius:12px;background:rgba(255,107,53,.1);display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:800;color:var(--primary);flex-shrink:0}
-.kpi-n{font-size:.9rem;font-weight:700}
-.kpi-d{font-size:.75rem;color:var(--text2)}
-.kpi-v{font-family:'JetBrains Mono',monospace;font-size:1.2rem;font-weight:800;color:var(--primary);min-width:80px;text-align:right;margin-left:auto}
+.overlay {
+  position: fixed; inset: 0; z-index: 100;
+  background: radial-gradient(ellipse at center, #15151f 0%, #08080d 70%);
+  display: none;
+  flex-direction: column;
+  align-items: center; justify-content: center;
+  padding: 20px;
+  overflow: hidden;
+}
+.overlay-bg {
+  position: absolute; inset: 0;
+  width: 100%; height: 100%;
+  object-fit: cover;
+  z-index: 0;
+  opacity: 1;
+  pointer-events: none;
+}
+.overlay::before {
+  content: ''; position: absolute; inset: 0; z-index: 1;
+  background: radial-gradient(ellipse at center, rgba(8,8,13,0) 0%, rgba(8,8,13,0.55) 80%);
+  pointer-events: none;
+}
+.overlay > .battle-hud,
+.overlay > .arena,
+.overlay > .your-pick { position: relative; z-index: 2; }
+.overlay.show { display: flex; animation: fadein 0.3s ease; }
+@keyframes fadein { from { opacity: 0; } to { opacity: 1; } }
 
-/* AI */
-.ai-box{background:var(--bg1);border:1.5px solid var(--border);border-radius:22px;padding:32px;backdrop-filter:blur(10px);margin-bottom:28px}
-.ai-box:hover{border-color:var(--border2)}
-.ai-textarea{width:100%;min-height:160px;padding:18px;border-radius:14px;border:1.5px solid var(--border2);background:var(--bg2);color:var(--text0);font-family:'Noto Sans TC',sans-serif;font-size:.9rem;line-height:1.7;resize:vertical;outline:none;transition:.25s}
-.ai-textarea:focus{border-color:var(--primary);box-shadow:0 0 20px rgba(255,107,53,.15)}
-.ai-textarea::placeholder{color:var(--text2)}
-.ai-actions{display:flex;gap:10px;margin-top:16px;flex-wrap:wrap}
-.ai-btn{padding:10px 24px;border-radius:12px;font-size:.85rem;font-weight:700;border:none;cursor:pointer;transition:all .25s}
-.ai-btn-primary{background:linear-gradient(135deg,var(--primary),var(--primary-light));color:#fff;box-shadow:0 4px 16px var(--glow-primary)}
-.ai-btn-primary:hover{transform:translateY(-2px);box-shadow:0 8px 24px var(--glow-primary)}
-.ai-btn-secondary{background:var(--bg2);border:1.5px solid var(--border2);color:var(--text1)}
-.ai-btn-secondary:hover{border-color:var(--primary);color:var(--text0)}
-.ai-file-label{padding:10px 24px;border-radius:12px;font-size:.85rem;font-weight:700;background:var(--bg2);border:1.5px solid var(--border2);color:var(--text1);cursor:pointer;transition:.25s;display:inline-flex;align-items:center;gap:8px}
-.ai-file-label:hover{border-color:var(--accent);color:var(--text0)}
-.ai-result{margin-top:20px;padding:20px;border-radius:14px;border:1px solid var(--border);background:var(--bg2);display:none}
-.ai-result.show{display:block}
-.ai-result-title{font-size:.85rem;font-weight:700;color:var(--accent);margin-bottom:10px}
-.ai-result-body{font-size:.85rem;color:var(--text1);line-height:1.8}
-.ai-loading{display:none;align-items:center;gap:10px;margin-top:16px;font-size:.85rem;color:var(--text1)}
-.ai-loading.show{display:flex}
-.ai-spinner{width:20px;height:20px;border:2px solid var(--border2);border-top-color:var(--primary);border-radius:50%;animation:spin .8s linear infinite}
-@keyframes spin{to{transform:rotate(360deg)}}
+.battle-hud {
+  position: absolute; top: 24px; left: 0; right: 0;
+  display: flex; justify-content: space-between; align-items: flex-start; padding: 0 20px;
+  z-index: 2;
+}
+.battle-status {
+  font-size: 11px; letter-spacing: 0.2em;
+  color: var(--orange);
+  padding: 6px 10px;
+  border: 1px solid var(--orange);
+  border-radius: 4px;
+  font-weight: 700;
+  animation: status-blink 1.4s ease infinite;
+}
+@keyframes status-blink { 50% { opacity: 0.5; } }
+.timer-pill {
+  font-family: 'Orbitron', monospace;
+  font-size: 32px; font-weight: 900;
+  color: var(--gold);
+  letter-spacing: 0.05em;
+  text-shadow: 0 0 24px var(--gold);
+}
 
-.reveal{opacity:0;transform:translateY(40px);transition:opacity .7s,transform .7s cubic-bezier(.16,1,.3,1)}
-.reveal.visible{opacity:1;transform:translateY(0)}
-.footer{padding:56px 0;text-align:center;border-top:1px solid var(--border)}
-.footer-text{font-size:.86rem;color:var(--text2);line-height:2.2}
-.footer-brand{color:var(--primary);font-weight:700}
-.stb{position:fixed;bottom:28px;right:28px;z-index:99;width:46px;height:46px;border-radius:14px;background:var(--bg2);border:1px solid var(--border2);color:var(--text1);cursor:pointer;font-size:1.1rem;display:flex;align-items:center;justify-content:center;transition:.25s;opacity:0;pointer-events:none}
-.stb.show{opacity:1;pointer-events:auto}
-.stb:hover{background:var(--primary);border-color:var(--primary);color:#fff;transform:translateY(-3px)}
+.arena {
+  width: min(320px, 85vw); aspect-ratio: 1;
+  position: relative;
+  border-radius: 50%;
+  background:
+    radial-gradient(circle at center, rgba(220,38,38,0.10), transparent 70%),
+    repeating-conic-gradient(from 0deg, transparent 0deg 10deg, rgba(255,209,102,0.04) 10deg 11deg);
+  box-shadow:
+    inset 0 0 0 2px rgba(255,209,102,0.2),
+    inset 0 0 60px rgba(220,38,38,0.15),
+    0 0 80px rgba(220,38,38,0.1);
+}
+.arena::before {
+  content: ''; position: absolute; inset: 12px;
+  border-radius: 50%;
+  border: 1px dashed rgba(255,209,102,0.15);
+}
+.arena::after {
+  content: ''; position: absolute; inset: 36px;
+  border-radius: 50%;
+  border: 1px dashed rgba(255,209,102,0.1);
+}
+.arena-bey {
+  position: absolute;
+  width: 56px; height: 56px;
+  top: 50%; left: 50%;
+  margin-top: -28px; margin-left: -28px;
+  transform: translate(var(--x, 0px), var(--y, 0px));
+  transition: transform 0.6s cubic-bezier(0.45, 0.05, 0.55, 0.95);
+}
+.arena-bey svg, .arena-bey img { width: 100%; height: 100%; animation: spin 0.5s linear infinite; object-fit: contain; }
+.arena-bey.knocked {
+  opacity: 0;
+  transition: transform 0.9s ease, opacity 0.9s ease;
+}
+.arena-bey.winner { animation: winner-glow 1s ease infinite alternate; }
+@keyframes winner-glow {
+  from { filter: drop-shadow(0 0 6px var(--accent)) drop-shadow(0 0 12px var(--accent)); }
+  to { filter: drop-shadow(0 0 16px var(--accent)) drop-shadow(0 0 32px var(--accent)); }
+}
 
-@media(max-width:768px){.wrap{padding:0 20px}.hero{padding:110px 20px 70px}.hero-title{font-size:2rem}.nav{padding:12px 20px}.nav-tabs{display:none}.section{padding:60px 0}.d-grid{grid-template-columns:1fr}.calc-summary{grid-template-columns:1fr}.crow{flex-wrap:wrap}.crow-in{width:100%}.ov{padding:60px 16px 16px}.panel-body{padding:20px}.f-bar{width:50px!important}}
-@media(max-width:480px){.hero-title{font-size:1.7rem}.g2,.g3{grid-template-columns:1fr}}
+.your-pick {
+  margin-top: 24px;
+  font-size: 12px; color: var(--text-secondary);
+  letter-spacing: 0.1em;
+  text-align: center;
+}
+.your-pick strong { color: var(--gold); font-weight: 700; }
+
+.result {
+  position: fixed; inset: 0; z-index: 110;
+  background: rgba(8,8,13,0.92); backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  display: none; align-items: center; justify-content: center;
+  padding: 20px;
+}
+.result.show { display: flex; animation: fadein 0.4s ease; }
+.result-card {
+  width: 100%; max-width: 360px;
+  padding: 32px 24px; text-align: center;
+  background: linear-gradient(180deg, var(--bg-glass-strong), var(--bg-elev));
+  border: 1px solid var(--border-gold);
+  border-radius: 18px;
+  position: relative;
+  overflow: hidden;
+}
+.result-card.win { border-color: var(--gold); box-shadow: 0 0 40px rgba(255,209,102,0.3); }
+.result-card.lose { border-color: rgba(255,255,255,0.1); }
+.result-bey-strip {
+  display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px;
+  margin: -8px auto 18px;
+  max-width: 320px;
+}
+.result-bey-strip .slot {
+  position: relative;
+  aspect-ratio: 3 / 4;
+  border-radius: 10px;
+  overflow: hidden;
+  border: 1.5px solid var(--border-subtle);
+  background: var(--bg-glass);
+  opacity: 0.45;
+  filter: grayscale(0.55);
+  transition: all 0.45s cubic-bezier(0.34, 1.4, 0.64, 1);
+}
+.result-bey-strip .slot img {
+  width: 100%; height: 100%;
+  object-fit: cover;
+  object-position: center top;
+  display: block;
+}
+.result-bey-strip .slot .nm {
+  position: absolute; left: 0; right: 0; bottom: 0;
+  font-size: 10px; font-weight: 900;
+  text-align: center;
+  padding: 3px 2px;
+  color: var(--text-primary);
+  background: linear-gradient(180deg, transparent, rgba(0,0,0,0.85));
+  letter-spacing: 0.05em;
+}
+.result-bey-strip .slot.winner {
+  opacity: 1;
+  filter: none;
+  border-color: var(--gold);
+  box-shadow: 0 0 20px rgba(255,209,102,0.55), inset 0 0 0 1px rgba(255,209,102,0.4);
+  transform: translateY(-4px) scale(1.05);
+  z-index: 2;
+}
+.result-bey-strip .slot.winner .nm { background: linear-gradient(180deg, transparent, rgba(255,150,30,0.9)); color: #fff; }
+.result-bey-strip .slot.winner::after {
+  content: '勝';
+  position: absolute; top: 4px; right: 4px;
+  font-size: 9px; font-weight: 900;
+  background: var(--gold); color: #0a0a0f;
+  padding: 1px 5px; border-radius: 3px;
+  letter-spacing: 0.05em;
+}
+.result-card.win .result-bey-strip .slot.winner { animation: winner-pulse 0.8s ease; }
+@keyframes winner-pulse {
+  0%, 100% { transform: translateY(-4px) scale(1.05); }
+  40% { transform: translateY(-8px) scale(1.12) rotate(-2deg); }
+  70% { transform: translateY(-2px) scale(1.03) rotate(1deg); }
+}
+.result-tag {
+  display: inline-block;
+  padding: 5px 16px;
+  font-size: 13px; letter-spacing: 0.2em;
+  border-radius: 4px;
+  margin-bottom: 18px;
+  font-weight: 900;
+}
+.result-tag.win { background: var(--gold); color: #0a0a0f; }
+.result-tag.lose { background: rgba(255,255,255,0.08); color: var(--text-secondary); border: 1px solid var(--border-subtle); }
+.result-title {
+  font-size: 38px; font-weight: 900;
+  margin-bottom: 10px;
+  letter-spacing: 0.04em;
+  line-height: 1.1;
+}
+.result-card.win .result-title {
+  background: linear-gradient(135deg, #FBBF24, #F97316, #DC2626);
+  -webkit-background-clip: text; background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+.result-card.lose .result-title { color: var(--text-primary); }
+.result-detail { font-size: 15px; color: var(--text-secondary); margin-bottom: 22px; line-height: 1.6; }
+.ticket-gain {
+  padding: 18px;
+  background: linear-gradient(135deg, rgba(0,212,170,0.08), rgba(0,212,170,0.02));
+  border: 1px solid rgba(0,212,170,0.25);
+  border-radius: 12px;
+  margin-bottom: 18px;
+}
+.ticket-gain .num {
+  font-family: 'Orbitron', monospace;
+  font-size: 44px; font-weight: 900;
+  color: var(--teal);
+  line-height: 1;
+  margin-bottom: 6px;
+}
+.ticket-gain .lbl { font-size: 13px; color: var(--text-secondary); letter-spacing: 0.1em; }
+.line-cta {
+  display: flex; align-items: center; justify-content: center; gap: 10px;
+  width: 100%; padding: 16px;
+  background: var(--line-green);
+  color: #fff;
+  font-weight: 900;
+  font-size: 16px;
+  letter-spacing: 0.1em;
+  border: none;
+  border-radius: 12px;
+  cursor: pointer;
+  text-decoration: none;
+  margin-bottom: 12px;
+  box-shadow: 0 4px 16px rgba(6,199,85,0.3);
+  transition: transform 0.2s;
+}
+.line-cta:active { transform: translateY(1px); }
+.line-cta svg { width: 24px; height: 24px; }
+.result-btn {
+  width: 100%; padding: 16px;
+  background: var(--bg-glass-strong);
+  border: 1px solid var(--border-subtle);
+  color: var(--text-primary);
+  font-weight: 700;
+  font-size: 15px;
+  letter-spacing: 0.1em;
+  border-radius: 12px;
+  cursor: pointer;
+}
+
+.confetti { position: absolute; width: 8px; height: 8px; pointer-events: none; top: 0; }
+@keyframes confetti-fall {
+  0% { transform: translateY(-20px) rotate(0); opacity: 1; }
+  100% { transform: translateY(500px) rotate(720deg); opacity: 0; }
+}
+
+.footnote { text-align: center; font-size: 12px; color: var(--text-secondary); margin-top: 24px; letter-spacing: 0.1em; opacity: 0.6; }
+
+@media (max-width: 360px) {
+  .title { font-size: 32px; }
+  .bey-name { font-size: 16px; }
+  .bey-visual { width: 96px; height: 96px; }
+  .bey-card .bey-name, .bey-card .bey-type, .bey-card .bey-stats { padding-right: 88px; }
+  .battle-btn { font-size: 17px; padding: 18px; letter-spacing: 0.18em; }
+  .mascot { bottom: 92px; }
+  .mascot .bubble { font-size: 12px; max-width: 150px; }
+  .mascot .figure { width: 74px; height: 104px; }
+  .result-title { font-size: 32px; }
+}
 </style>
 </head>
 <body>
-<div id="particles"></div>
-<div class="mouse-glow" id="mouseGlow"></div>
-<div class="bg-effects"></div>
+  <video class="idle-bg" id="idle-bg" autoplay muted loop playsinline preload="auto">
+    <source src="idle-bg.webm" type="video/webm">
+    <source src="idle-bg.mp4" type="video/mp4">
+  </video>
+  <div class="idle-tint"></div>
 
-<nav class="nav">
-<div class="nav-inner">
-<div class="nav-logo"><div class="nav-logo-icon">G</div>GHS 獲客系統</div>
-<div class="nav-ver">
-<button class="nav-ver-btn on" id="btnP1" onclick="switchPage('funnel')">獲客漏斗</button>
-<button class="nav-ver-btn" id="btnP2" onclick="switchPage('calc')">財務計算機</button>
-<button class="nav-ver-btn" id="btnP3" onclick="switchPage('ai')">AI 模擬</button>
-</div>
-<div class="nav-tabs" id="navTabs"></div>
-<button class="nav-theme" id="btnTheme" onclick="toggleTheme()">🌙</button>
-</div>
-</nav>
+  <svg width="0" height="0" style="position:absolute" aria-hidden="true">
+    <defs>
+      <symbol id="mascot-idle" viewBox="0 0 200 240">
+        <ellipse cx="100" cy="226" rx="56" ry="6" fill="#000" opacity="0.45"/>
+        <g>
+          <ellipse cx="100" cy="130" rx="68" ry="74" fill="#FFD166"/>
+          <ellipse cx="100" cy="130" rx="68" ry="74" fill="url(#mascot-shade)"/>
+          <ellipse cx="76" cy="146" rx="14" ry="9" fill="#FCA5A5" opacity="0.7"/>
+          <ellipse cx="124" cy="146" rx="14" ry="9" fill="#FCA5A5" opacity="0.7"/>
+          <ellipse cx="80" cy="118" rx="9" ry="11" fill="#0a0a0f"/>
+          <ellipse cx="120" cy="118" rx="9" ry="11" fill="#0a0a0f"/>
+          <circle cx="83" cy="114" r="3" fill="#fff"/>
+          <circle cx="123" cy="114" r="3" fill="#fff"/>
+          <path d="M88 156 Q100 164 112 156" stroke="#0a0a0f" stroke-width="3" fill="none" stroke-linecap="round"/>
+          <path d="M50 78 Q70 56 88 70 L82 84 Q70 78 58 92 Z" fill="#F97316"/>
+          <path d="M150 78 Q130 56 112 70 L118 84 Q130 78 142 92 Z" fill="#F97316"/>
+          <circle cx="100" cy="60" r="6" fill="#FF6B35"/>
+          <rect x="97" y="38" width="6" height="22" fill="#FF6B35"/>
+        </g>
+        <defs>
+          <radialGradient id="mascot-shade" cx="0.35" cy="0.35">
+            <stop offset="0" stop-color="#fff" stop-opacity="0.4"/>
+            <stop offset="0.6" stop-color="#fff" stop-opacity="0"/>
+            <stop offset="1" stop-color="#000" stop-opacity="0.25"/>
+          </radialGradient>
+        </defs>
+      </symbol>
+      <symbol id="mascot-cheer" viewBox="0 0 200 240">
+        <ellipse cx="100" cy="226" rx="56" ry="6" fill="#000" opacity="0.45"/>
+        <g>
+          <ellipse cx="100" cy="134" rx="70" ry="76" fill="#FFD166"/>
+          <ellipse cx="100" cy="134" rx="70" ry="76" fill="url(#mascot-shade2)"/>
+          <ellipse cx="74" cy="150" rx="15" ry="10" fill="#F97316" opacity="0.65"/>
+          <ellipse cx="126" cy="150" rx="15" ry="10" fill="#F97316" opacity="0.65"/>
+          <path d="M70 116 Q80 106 90 116" stroke="#0a0a0f" stroke-width="4" fill="none" stroke-linecap="round"/>
+          <path d="M110 116 Q120 106 130 116" stroke="#0a0a0f" stroke-width="4" fill="none" stroke-linecap="round"/>
+          <path d="M78 156 Q100 178 122 156 Q100 168 78 156 Z" fill="#0a0a0f"/>
+          <path d="M82 158 Q100 170 118 158 Q100 162 82 158 Z" fill="#FF6B35"/>
+          <path d="M44 60 L62 78 L74 64 L70 88 L48 84 Z" fill="#F97316"/>
+          <path d="M156 60 L138 78 L126 64 L130 88 L152 84 Z" fill="#F97316"/>
+          <circle cx="100" cy="48" r="10" fill="#FBBF24" stroke="#F97316" stroke-width="2"/>
+          <text x="100" y="54" text-anchor="middle" font-size="14" font-weight="900" fill="#0a0a0f" font-family="Orbitron, sans-serif">!</text>
+        </g>
+        <defs>
+          <radialGradient id="mascot-shade2" cx="0.35" cy="0.3">
+            <stop offset="0" stop-color="#fff" stop-opacity="0.5"/>
+            <stop offset="0.6" stop-color="#fff" stop-opacity="0"/>
+            <stop offset="1" stop-color="#000" stop-opacity="0.25"/>
+          </radialGradient>
+        </defs>
+      </symbol>
+    </defs>
+  </svg>
 
-<div class="hero">
-<div class="hero-glow"></div>
-<div class="hero-eyebrow"><span class="hero-dot-green"></span>一人公司獲客系統 2026/03</div>
-<h1 class="hero-title">蓋厚勝<span class="hl">獲客漏斗</span><br>財務結構</h1>
-<p class="hero-desc">五層漏斗結構 財務計算機 AI 智慧模擬 三合一營運工具</p>
-<div class="hero-stats">
-<div class="hstat"><div class="hstat-val">5</div><div class="hstat-lbl">漏斗層級</div></div>
-<div class="hstat"><div class="hstat-val">8</div><div class="hstat-lbl">支出分類</div></div>
-<div class="hstat"><div class="hstat-val">AI</div><div class="hstat-lbl">智慧分類</div></div>
-</div>
-</div>
-<div class="divider"></div>
+  <div class="hidden-stats" hidden>
+    <span id="chances">3/3</span>
+    <span id="tickets">128</span>
+  </div>
 
-<!-- PAGE 1: FUNNEL -->
-<div id="pg-funnel" class="ver-page active">
-<section class="section">
-<div class="wrap">
-<div class="sh reveal"><div class="sh-tag t-orange">獲客漏斗</div><h2 class="sh-title">五層漏斗結構</h2><p class="sh-desc">點擊任一層查看詳細內容</p></div>
-<div class="funnel reveal">
-<div class="f-row" onclick="od(0)"><div class="f-bar"><div class="f-num">1</div></div><div class="f-body"><div class="f-title">曝光 — 讓人知道你</div><div class="f-sub">花錢或花時間 把流量製造出來</div><div class="f-chips"><span class="chip on">地推 主力</span><span class="chip on">代理 GU</span><span class="chip half">直播 不穩</span><span class="chip half">IG/Threads</span><span class="chip half">SEO</span><span class="chip off">Meta 暫停</span><span class="chip off">LINE 暫停</span><span class="chip plan">KOL</span><span class="chip plan">Google</span><span class="chip plan">TikTok</span><span class="chip plan">TG</span></div></div></div>
-<div class="f-row" onclick="od(1)"><div class="f-bar"><div class="f-num">2</div></div><div class="f-body"><div class="f-title">吸引 — 讓人想點進來</div><div class="f-sub">活動包裝 視覺素材 文案鉤子</div><div class="f-chips"><span class="chip on">四月企劃</span><span class="chip on">互動遊戲</span><span class="chip on">IG 抽獎</span></div></div></div>
-<div class="f-row" onclick="od(2)"><div class="f-bar"><div class="f-num">3</div></div><div class="f-body"><div class="f-title">註冊 — 讓人變成玩家</div><div class="f-sub">新會員進場 完成首儲</div><div class="f-chips"><span class="chip on">新會員禮</span><span class="chip on">LINE 密令</span><span class="chip on">客服</span><span class="chip on">客微</span><span class="chip half">水軍</span></div></div></div>
-<div class="f-row" onclick="od(3)"><div class="f-bar"><div class="f-num">4</div></div><div class="f-body"><div class="f-title">留存 — 讓玩家持續儲值</div><div class="f-sub">大戶養成 競技排行 挑戰機制 日常黏著</div><div class="f-chips"><span class="chip on">大富翁</span><span class="chip on">碼量排行</span><span class="chip on">百家挑戰</span><span class="chip on">寶箱</span><span class="chip half">限定活動</span><span class="chip half">LINE 再行銷</span></div></div></div>
-<div class="f-row" onclick="od(4)"><div class="f-bar"><div class="f-num">$</div></div><div class="f-body"><div class="f-title">營收與支出</div><div class="f-sub">錢怎麼進來 錢花去哪裡</div><div class="f-chips"><span class="chip on">玩家儲值</span><span class="chip off">平台金流</span><span class="chip off">人事</span><span class="chip off">固定</span><span class="chip off">廣告</span><span class="chip off">代理</span><span class="chip off">幣商</span><span class="chip off">稅</span></div></div></div>
-</div>
-</div>
-</section>
-</div>
+  <main class="stage">
+    <div class="title-block">
+      <div class="kicker">每日戰鬥</div>
+      <h1 class="title">戰鬥陀螺競技場</h1>
+      <p class="subtitle">每日 3 次免費押注 · 累積抽獎券爭奪週末大獎</p>
+    </div>
 
-<!-- DETAIL OVERLAY -->
-<div class="ov" id="ov" onclick="if(event.target===this)cd()"><div class="panel" id="pnl"></div></div>
+    <div class="bey-grid" id="bey-grid"></div>
 
-<!-- PAGE 2: CALC -->
-<div id="pg-calc" class="ver-page">
-<section class="section">
-<div class="wrap">
-<div class="sh reveal"><div class="sh-tag t-teal">財務計算機</div><h2 class="sh-title">月度損益計算</h2><p class="sh-desc">輸入金額即時計算 賺錢變綠 虧錢變紅</p></div>
-<div class="calc-summary reveal">
-<div class="sum-card si"><div class="sum-lbl">月收入</div><div class="sum-val" id="vi">$0</div></div>
-<div class="sum-card se"><div class="sum-lbl">月支出</div><div class="sum-val" id="vo">$0</div></div>
-<div class="sum-card sp" id="vpc"><div class="sum-lbl">月損益</div><div class="sum-val" id="vp">$0</div></div>
-</div>
-<div class="calc-chart-wrap reveal"><div class="calc-chart-title">支出結構佔比</div><div style="max-width:400px;margin:0 auto"><canvas id="pieChart"></canvas></div></div>
+    <div class="section-head">
+      <span class="lbl">累計中獎兌換</span>
+      <span class="meta" id="prize-meta">—</span>
+    </div>
+    <div class="prize-progress" id="prize-progress">
+      已累計 <span class="num" id="prize-current">0</span> 次中獎
+      <span class="next" id="prize-next"></span>
+    </div>
+    <div class="prize-scroll" id="prize-scroll"></div>
+  </main>
 
-<div class="calc-sec reveal"><div class="calc-head"><span class="calc-tag cg">收入</span><span class="calc-title">玩家儲值</span><span class="calc-sub" id="zi">$0</span></div>
-<div class="crow"><div class="crow-info"><div class="crow-n">玩家儲值</div><div class="crow-d">唯一收入來源</div></div><div class="crow-in"><input type="number" placeholder="0" data-g="i" oninput="cc()"></div></div></div>
+  <button class="battle-btn" id="battle-btn" disabled>選一隻陀螺出戰</button>
 
-<div class="calc-sec reveal"><div class="calc-head"><span class="calc-tag cr">支出</span><span class="calc-title">平台與金流</span><span class="calc-sub" id="zpf">$0</span></div>
-<div class="crow"><div class="crow-info"><div class="crow-n">站台費</div></div><div class="crow-in"><input type="number" placeholder="0" data-g="pf" oninput="cc()"></div></div>
-<div class="crow"><div class="crow-info"><div class="crow-n">遊戲商線路費</div></div><div class="crow-in"><input type="number" placeholder="0" data-g="pf" oninput="cc()"></div></div>
-<div class="crow"><div class="crow-info"><div class="crow-n">遊戲商損益</div></div><div class="crow-in"><input type="number" placeholder="0" data-g="pf" oninput="cc()"></div></div>
-<div class="crow"><div class="crow-info"><div class="crow-n">儲值金流費</div></div><div class="crow-in"><input type="number" placeholder="0" data-g="pf" oninput="cc()"></div></div></div>
+  <div class="mascot" id="mascot">
+    <div class="bubble" id="mascot-bubble">
+      準備好了嗎？<br>選一隻陀螺押注吧！
+    </div>
+    <img class="figure" src="mascot.png" alt="">
+  </div>
 
-<div class="calc-sec reveal"><div class="calc-head"><span class="calc-tag cr">支出</span><span class="calc-title">人事成本</span><span class="calc-sub" id="zhr">$0</span></div>
-<div class="crow"><div class="crow-info"><div class="crow-n">直播主播薪資</div></div><div class="crow-in"><input type="number" placeholder="0" data-g="hr" oninput="cc()"></div></div>
-<div class="crow"><div class="crow-info"><div class="crow-n">運營人員</div></div><div class="crow-in"><input type="number" placeholder="0" data-g="hr" oninput="cc()"></div></div></div>
+  <div class="overlay" id="battle-overlay">
+    <video class="overlay-bg" id="overlay-bg" muted loop playsinline preload="auto">
+      <source src="battle-bg.webm" type="video/webm">
+      <source src="battle-bg.mp4" type="video/mp4">
+    </video>
+    <div class="battle-hud">
+      <div class="battle-status">戰鬥進行中</div>
+      <div class="timer-pill mono" id="timer">00:12</div>
+    </div>
+    <div class="arena" id="arena"></div>
+    <div class="your-pick">你押注：<strong id="picked-name">—</strong></div>
+  </div>
 
-<div class="calc-sec reveal"><div class="calc-head"><span class="calc-tag cr">支出</span><span class="calc-title">固定開銷</span><span class="calc-sub" id="zfx">$0</span></div>
-<div class="crow"><div class="crow-info"><div class="crow-n">辦公室租金</div></div><div class="crow-in"><input type="number" placeholder="0" data-g="fx" oninput="cc()"></div></div>
-<div class="crow"><div class="crow-info"><div class="crow-n">硬體 軟體訂閱</div></div><div class="crow-in"><input type="number" placeholder="0" data-g="fx" oninput="cc()"></div></div></div>
-
-<div class="calc-sec reveal"><div class="calc-head"><span class="calc-tag cr">支出</span><span class="calc-title">廣告費用</span><span class="calc-sub" id="zad">$0</span></div>
-<div class="crow"><div class="crow-info"><div class="crow-n">品牌廣告</div></div><div class="crow-in"><input type="number" placeholder="0" data-g="ad" oninput="cc()"></div></div>
-<div class="crow"><div class="crow-info"><div class="crow-n">IP 直播廣告</div></div><div class="crow-in"><input type="number" placeholder="0" data-g="ad" oninput="cc()"></div></div>
-<div class="crow"><div class="crow-info"><div class="crow-n">活動日金</div></div><div class="crow-in"><input type="number" placeholder="0" data-g="ad" oninput="cc()"></div></div>
-<div class="crow"><div class="crow-info"><div class="crow-n">抽獎</div></div><div class="crow-in"><input type="number" placeholder="0" data-g="ad" oninput="cc()"></div></div>
-<div class="crow"><div class="crow-info"><div class="crow-n">周邊</div></div><div class="crow-in"><input type="number" placeholder="0" data-g="ad" oninput="cc()"></div></div></div>
-
-<div class="calc-sec reveal"><div class="calc-head"><span class="calc-tag cr">支出</span><span class="calc-title">代理商</span><span class="calc-sub" id="zag">$0</span></div>
-<div class="crow"><div class="crow-info"><div class="crow-n">代理商傭金</div></div><div class="crow-in"><input type="number" placeholder="0" data-g="ag" oninput="cc()"></div></div></div>
-
-<div class="calc-sec reveal"><div class="calc-head"><span class="calc-tag cr">支出</span><span class="calc-title">幣商</span><span class="calc-sub" id="zbs">$0</span></div>
-<div class="crow"><div class="crow-info"><div class="crow-n">輸贏</div></div><div class="crow-in"><input type="number" placeholder="0" data-g="bs" oninput="cc()"></div></div></div>
-
-<div class="calc-sec reveal"><div class="calc-head"><span class="calc-tag cr">支出</span><span class="calc-title">國家</span><span class="calc-sub" id="zgv">$0</span></div>
-<div class="crow"><div class="crow-info"><div class="crow-n">娛樂稅</div></div><div class="crow-in"><input type="number" placeholder="0" data-g="gv" oninput="cc()"></div></div>
-<div class="crow"><div class="crow-info"><div class="crow-n">所得稅</div></div><div class="crow-in"><input type="number" placeholder="0" data-g="gv" oninput="cc()"></div></div></div>
-
-<div class="calc-sec reveal"><div class="calc-head"><span class="calc-tag cp">KPI</span><span class="calc-title">利潤率</span></div>
-<div class="kpi-card"><div class="kpi-ico">%</div><div style="flex:1"><div class="kpi-n">利潤率</div><div class="kpi-d">月損益 / 月收入</div></div><div class="kpi-v" id="km">—</div></div></div>
-</div>
-</section>
-</div>
-
-<!-- PAGE 3: AI -->
-<div id="pg-ai" class="ver-page">
-<section class="section">
-<div class="wrap">
-<div class="sh reveal"><div class="sh-tag t-purple">AI 模擬</div><h2 class="sh-title">智慧財務分類</h2><p class="sh-desc">貼上帳目文字或上傳檔案 AI 自動分類到八組支出 模擬月開銷</p></div>
-<div class="ai-box reveal">
-<textarea class="ai-textarea" id="aiInput" placeholder="貼上帳目資料 例如：&#10;主播薪水 45000&#10;辦公室租金 25000&#10;Meta廣告 80000&#10;打火機 500個 15000&#10;&#10;或直接上傳 Excel / CSV 檔案"></textarea>
-<div class="ai-actions">
-<button class="ai-btn ai-btn-primary" onclick="runAI()">AI 分析分類</button>
-<label class="ai-file-label"><input type="file" accept=".csv,.xlsx,.xls,.txt" style="display:none" onchange="handleFile(event)">上傳檔案</label>
-<button class="ai-btn ai-btn-secondary" onclick="clearAI()">清除</button>
-</div>
-<div class="ai-loading" id="aiLoading"><div class="ai-spinner"></div>AI 正在分析你的帳目資料...</div>
-<div class="ai-result" id="aiResult"><div class="ai-result-title">分類結果</div><div class="ai-result-body" id="aiResultBody"></div></div>
-</div>
-<div class="ai-box reveal">
-<div style="font-size:.9rem;font-weight:700;margin-bottom:12px">分類完成後 自動填入計算機</div>
-<div style="font-size:.82rem;color:var(--text1);line-height:1.8">AI 會將你的帳目自動分到：平台金流 / 人事成本 / 固定開銷 / 廣告費用 / 代理商 / 幣商 / 國家稅 八個類別 並填入財務計算機即時算出損益</div>
-</div>
-</div>
-</section>
-</div>
-
-<div class="footer"><div class="footer-text">蓋厚勝娛樂城 GHS — 一人公司獲客系統<br><span class="footer-brand">2026/03</span></div></div>
-<button class="stb" id="stb" onclick="window.scrollTo({top:0,behavior:'smooth'})">↑</button>
+  <div class="result" id="result">
+    <div class="result-card" id="result-card">
+      <div class="result-bey-strip" id="result-strip"></div>
+      <span class="result-tag" id="result-tag"></span>
+      <h2 class="result-title" id="result-title"></h2>
+      <p class="result-detail" id="result-detail"></p>
+      <div class="ticket-gain" id="ticket-gain">
+        <div class="num">+1</div>
+        <div class="lbl">張抽獎券入帳</div>
+      </div>
+      <a class="line-cta" id="line-cta" href="https://lin.ee/81G5cOJ" target="_blank" rel="noopener" style="display:none">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M19.365 9.863c.349 0 .63.285.63.631 0 .345-.281.63-.63.63H17.61v1.125h1.755c.349 0 .63.283.63.63 0 .344-.281.629-.63.629h-2.386c-.345 0-.627-.285-.627-.629V8.108c0-.345.282-.63.63-.63h2.386c.346 0 .627.285.627.63 0 .349-.281.63-.63.63H17.61v1.125h1.755zm-3.855 3.016c0 .27-.174.51-.432.596-.064.021-.133.031-.199.031-.211 0-.391-.09-.51-.25l-2.443-3.317v2.94c0 .344-.279.629-.631.629-.346 0-.626-.285-.626-.629V8.108c0-.27.173-.51.43-.595.06-.023.136-.033.194-.033.195 0 .375.104.495.254l2.462 3.33V8.108c0-.345.282-.63.63-.63.345 0 .63.285.63.63v4.771zm-5.741 0c0 .344-.282.629-.631.629-.345 0-.626-.285-.626-.629V8.108c0-.345.281-.63.63-.63.346 0 .627.285.627.63v4.771zm-2.466.629H4.917c-.345 0-.63-.285-.63-.629V8.108c0-.345.285-.63.63-.63.348 0 .63.285.63.63v4.141h1.756c.348 0 .629.283.629.63 0 .344-.282.629-.629.629M24 10.314C24 4.943 18.615.572 12 .572S0 4.943 0 10.314c0 4.811 4.27 8.842 10.035 9.608.391.082.923.258 1.058.59.12.301.079.766.038 1.08l-.164 1.02c-.045.301-.24 1.186 1.049.645 1.291-.539 6.916-4.078 9.436-6.975C23.176 14.393 24 12.458 24 10.314"/></svg>
+        前往官方 LINE 領取
+      </a>
+      <button class="result-btn" onclick="location.reload()">回大廳</button>
+    </div>
+  </div>
 
 <script>
-// Layers data
-var L=[
-{n:'1',t:'曝光 — 讓人知道你',s:'花錢或花時間 把流量製造出來',g:[
-{n:'蓋厚勝 — 天推',c:[{n:'Meta廣告',d:'數位娛樂城合法合規 效益價值在於名單',s:'暫停 改地推 市場龐大效益差',c:'s-off'},{n:'LINE 加好友廣告',d:'透過加好友導流 漏斗最上層的流量開口',s:'暫停 改地推 市場龐大效益差',c:'s-off'},{n:'品牌形象官網 SEO',d:'品牌公信力 主打合法合規 SEO 鎖定「2026 娛樂城推薦」「出金最穩平台」截搜尋引擎精準流量 建立權威背書',s:'有站 需優化定位',c:'s-half'},{n:'地推',d:'精準博弈相關 TA 聚集地 帶回高質量名單 最大問題是人力成本高',s:'目前主力 客製化打火機 撲克牌 提袋禮盒 立牌 異業結合娃娃機 計程車 夜市',c:'s-on'},{n:'IG / Threads 社群',d:'養號中 目標 100 位水軍矩陣 不是發廣告 是帶風向',s:'養號階段',c:'s-half'}]},
-{n:'總線 gai168 直播主',c:[{n:'Meta 直播廣告',d:'目前市場轉化價值最高',s:'平台大規模封控中 加購粉專 BM 粉絲專頁',c:'s-off'},{n:'直播導流',d:'品牌最前線的信任代理人 玩家對平台有戒心 但對人容易產生投射',s:'主播動盪不安 整體技巧提升 客微能力上升 團結度待觀察',c:'s-half'}]},
-{n:'代理商 gu3579',c:[{n:'代理',d:'組織裂變 槓桿化擴張 品牌快速滲透',s:'目前代理 GU 做很棒',c:'s-on'}]},
-{n:'規劃中 / 暫無動作',c:[{n:'KOL / KOC 短影音',d:'找生活類 測評類 KOC 做體驗開箱 第三人稱視角降低戒心',s:'暫無動作',c:'s-plan'},{n:'Google 廣告',d:'後期版本 效益高 合法推廣導流',s:'規劃中',c:'s-plan'},{n:'短影音矩陣 Reels / TikTok',d:'非博弈但有吸引力的短片 規避廣告封控',s:'暫無動作',c:'s-plan'},{n:'Telegram 群組獲客',d:'海外市場及名聲 世足金流',s:'規劃中',c:'s-plan'}]}
-]},
-{n:'2',t:'吸引 — 讓人想點進來',s:'活動包裝 視覺素材 文案鉤子',g:[
-{n:'月度活動企劃',c:[{n:'四月企劃 愚樂連假狂歡月',d:'6 個常駐活動加每週爆點 用童趣包裝降低博弈防備心 放大無腦領錢的爽感 極大化四月註冊率',s:'Banner 公告 全部就位',c:'s-on'},{n:'獨家互動遊戲',d:'每天一次抽獎 用免費日金建立每天醒來都要點開蓋厚勝的制約習慣 養成 DAU',s:'上線運作中',c:'s-on'},{n:'IG 抽獎',d:'實體大獎誘餌 PS5/Switch 突破博弈同溫層 社群病毒式擴散 低成本獲取潛在新名單',s:'已完成 建議後續準備名單再行銷',c:'s-on'}]},
-{n:'炒群信任建立',c:[]}
-]},
-{n:'3',t:'註冊 — 讓人變成玩家',s:'新會員進場 完成首儲',g:[
-{n:'首儲誘因',c:[{n:'新會員禮 童樂園入場券',d:'單儲 1,000 送 12,888 配合洗碼量限制與風控審核 嚴防套利',s:'運作中',c:'s-on'},{n:'LINE 密令好禮',d:'私訊官方 LINE 解鎖好禮 用互動感降低註冊摩擦力 同時收集名單',s:'ITEM04 運作中',c:'s-on'}]},
-{n:'客服轉換',c:[{n:'LINE 官方帳號客服',d:'加好友後由客服引導註冊 私域流量池入口',s:'運作中',c:'s-on'},{n:'直播主客微',d:'利用主播陪伴感私訊關心 配合影子客服在後台接手註冊教學',s:'運作中',c:'s-on'}]},
-{n:'註冊流程',c:[{n:'社群',d:'社會趨同效應 水軍發佈生活化贏錢心得與地推禮盒開箱 塑造大家都在蓋厚勝贏錢的氛圍',s:'水軍建立中',c:'s-half'}]}
-]},
-{n:'4',t:'留存 — 讓玩家持續儲值',s:'大戶養成 競技排行 挑戰機制 日常黏著',g:[
-{n:'大戶養成',c:[{n:'大富翁加倍奉還',d:'儲 1,000 送 12,000 累儲狂送 140,000 15% 回饋卡',s:'階梯式獎勵鎖住大戶 提高沉沒成本',c:'s-on'}]},
-{n:'競技排行',c:[{n:'碼量排行 砲火x神話x奢華',d:'三款主力老虎機月流水排行 前 50 名領獎金',s:'競爭心理驅動持續下注衝排名',c:'s-on'}]},
-{n:'挑戰機制',c:[{n:'EEAI 百家洗碼x連勝斬莊',d:'洗碼達 30,000 領 1,688 日金 連勝 10 局送 8,888 斬莊金',s:'雙軌制讓百家樂玩家有明確目標',c:'s-on'}]},
-{n:'日常黏著',c:[{n:'每日寶箱抽獎',d:'每天一次免費抽 養成每日登入習慣 維持 DAU',s:'運作中',c:'s-on'},{n:'日期限定活動',d:'每週爆點保持新鮮感',s:'規劃中',c:'s-half'},{n:'LINE 推播再行銷',d:'推送活動資訊 喚回沉睡玩家',s:'有在做 可強化',c:'s-half'}]}
-]},
-{n:'$',t:'營收與支出',s:'錢怎麼進來 錢花去哪裡',g:[
-{n:'收入',cls:'inc',c:[{n:'玩家儲值',d:'唯一收入來源',s:'核心命脈',c:'s-on'}]},
-{n:'支出 — 平台與金流',cls:'exp',c:[{n:'站台費',d:'平台使用費'},{n:'遊戲商線路費',d:'API 串接費用'},{n:'遊戲商損益',d:'玩家贏輸結算差額'},{n:'儲值金流費',d:'玩家儲值通道手續費'}]},
-{n:'支出 — 人事成本',cls:'exp',c:[{n:'直播主播薪資',d:'底薪加績效'},{n:'運營人員',d:'客服 影子客服 美術'}]},
-{n:'支出 — 固定開銷',cls:'exp',c:[{n:'辦公室租金',d:'辦公空間 直播場地'},{n:'硬體 軟體訂閱',d:'AI 訂閱 直播設備'}]},
-{n:'支出 — 廣告費用',cls:'exp',c:[{n:'品牌廣告',d:'品牌天推'},{n:'IP 直播廣告',d:'直播主廣告投放'},{n:'活動日金',d:'活動獎勵發放'},{n:'抽獎',d:'抽獎獎品成本'},{n:'周邊',d:'地推物資 打火機 撲克牌 禮盒'}]},
-{n:'支出 — 代理商',cls:'exp',c:[{n:'代理商傭金',d:'儲值分潤'}]},
-{n:'支出 — 幣商',cls:'exp',c:[{n:'輸贏',d:'玩家透過幣商充提的損益'}]},
-{n:'支出 — 國家',cls:'exp',c:[{n:'娛樂稅',d:'合法繳納'},{n:'所得稅',d:'合法繳納'}]},
-{n:'利潤率',c:[{n:'月損益 / 月收入',d:'LTV 大於 CAC 才賺錢',s:'需要追蹤',c:'s-half'}]}
-]}
+const STATE = { chances: 3, tickets: 128, wins: 0, picked: null, busy: false };
+
+const PRIZES = [
+  { hits: 3,  cash: 888,    bonus: '' },
+  { hits: 5,  cash: 2888,   bonus: '' },
+  { hits: 10, cash: 8888,   bonus: '' },
+  { hits: 15, cash: 16888,  bonus: '' },
+  { hits: 20, cash: 26000,  bonus: '' },
+  { hits: 30, cash: 60000,  bonus: '新光禮卷 200' },
+  { hits: 40, cash: 140000, bonus: '新光禮卷 500' },
+  { hits: 50, cash: 250000, bonus: '新光禮卷 1000' },
 ];
 
-// Detail overlay
-function od(i){
-var l=L[i],h='<div class="panel-head"><div class="panel-num">'+l.n+'</div><div><div class="panel-title">'+l.t+'</div><div class="panel-sub">'+l.s+'</div></div><button class="panel-close" onclick="cd()">✕</button></div><div class="panel-body">';
-l.g.forEach(function(g){var cls=g.cls==='inc'?'inc':g.cls==='exp'?'exp':'';h+='<div class="d-grp '+cls+'">'+g.n+'</div>';if(g.c.length){h+='<div class="d-grid">';g.c.forEach(function(c){h+='<div class="d-card"><div class="d-card-n">'+c.n+'</div><div class="d-card-d">'+c.d+'</div>';if(c.s)h+='<div class="d-card-s '+(c.c||'')+'">'+c.s+'</div>';h+='</div>';});h+='</div>';}});
-h+='</div>';document.getElementById('pnl').innerHTML=h;document.getElementById('ov').classList.add('open');document.body.style.overflow='hidden';
+function fmtCash(n) { return 'NT$ ' + n.toLocaleString(); }
+
+function renderPrizes() {
+  const scroll = document.getElementById('prize-scroll');
+  const wins = STATE.wins;
+  const next = PRIZES.find(p => p.hits > wins);
+  scroll.innerHTML = PRIZES.map(p => {
+    let state = 'locked';
+    if (wins >= p.hits) state = 'unlocked';
+    else if (next && p.hits === next.hits) state = 'next';
+    return `
+      <div class="prize-card" data-state="${state}">
+        <div class="tier"><strong>${p.hits}</strong> 次中獎</div>
+        <div class="cash"><span class="unit">NT$</span>${p.cash.toLocaleString()}</div>
+        ${p.bonus ? `<div class="bonus">+ ${p.bonus}</div>` : `<div class="bonus" style="opacity:0;pointer-events:none">—</div>`}
+        ${state === 'locked' ? '<span class="lock">🔒</span>' : ''}
+      </div>
+    `;
+  }).join('');
+  document.getElementById('prize-current').textContent = wins;
+  const nextEl = document.getElementById('prize-next');
+  const metaEl = document.getElementById('prize-meta');
+  if (next) {
+    nextEl.textContent = `· 再 ${next.hits - wins} 次解鎖 ${fmtCash(next.cash)}${next.bonus ? ' + ' + next.bonus : ''}`;
+    metaEl.textContent = `下一檔 ${next.hits} 次`;
+  } else {
+    nextEl.textContent = '· 全部已解鎖';
+    metaEl.textContent = '已達最高';
+  }
 }
-function cd(){document.getElementById('ov').classList.remove('open');document.body.style.overflow=''}
-document.addEventListener('keydown',function(e){if(e.key==='Escape')cd()});
 
-// Page switching
-function switchPage(id){
-document.querySelectorAll('.ver-page').forEach(function(p){p.classList.remove('active')});
-document.getElementById('pg-'+id).classList.add('active');
-document.querySelectorAll('.nav-ver-btn').forEach(function(b){b.classList.remove('on')});
-if(id==='funnel')document.getElementById('btnP1').classList.add('on');
-if(id==='calc'){document.getElementById('btnP2').classList.add('on');setTimeout(initChart,100)}
-if(id==='ai')document.getElementById('btnP3').classList.add('on');
-window.scrollTo({top:0,behavior:'smooth'});
-observeReveals();
+const BEYS = [
+  {
+    id: 'gaiye', name: '小蓋爺', type: '持久型',
+    accent: '#DC2626', sub: '#FBBF24', accentGlow: 'rgba(220,38,38,0.5)',
+    stats: { atk: 55, def: 70, sta: 92 }, winrate: 53, spinSpeed: 1.0,
+    iconType: 'mahjong', image: 'bey-gaiye.png'
+  },
+  {
+    id: 'kuei', name: '瘋狂小葵', type: '攻擊型',
+    accent: '#F97316', sub: '#EC4899', accentGlow: 'rgba(249,115,22,0.5)',
+    stats: { atk: 95, def: 40, sta: 55 }, winrate: 58, spinSpeed: 0.55,
+    iconType: 'sunburst', image: 'bey-kuei.png'
+  },
+  {
+    id: 'popo', name: '點點富婆', type: '防禦型',
+    accent: '#FBBF24', sub: '#0F172A', accentGlow: 'rgba(251,191,36,0.5)',
+    stats: { atk: 45, def: 95, sta: 70 }, winrate: 51, spinSpeed: 0.85,
+    iconType: 'diamond', image: 'bey-popo.svg'
+  },
+  {
+    id: 'yo', name: '雷殘小祐', type: '平衡型',
+    accent: '#8B5CF6', sub: '#3B82F6', accentGlow: 'rgba(139,92,246,0.5)',
+    stats: { atk: 72, def: 72, sta: 72 }, winrate: 49, spinSpeed: 0.75,
+    iconType: 'lightning', image: 'bey-yo.png'
+  },
+];
+
+// High-metal Beyblade-style SVG: layered metallic body + sub-color rim + signature center icon
+function beySvg(b) {
+  const main = b.accent, sub = b.sub;
+  const gradId = `g-${b.id}-${Math.random().toString(36).slice(2,7)}`;
+
+  let icon = '';
+  if (b.iconType === 'mahjong') {
+    icon = `
+      <rect x="40" y="40" width="20" height="20" rx="2" fill="#0F172A" stroke="${sub}" stroke-width="1.2"/>
+      <rect x="48" y="44" width="4" height="12" fill="${main}"/>
+      <rect x="44" y="47" width="12" height="4" fill="none" stroke="${main}" stroke-width="1.4"/>
+    `;
+  } else if (b.iconType === 'sunburst') {
+    icon = `
+      <g fill="${sub}">
+        ${[0,45,90,135,180,225,270,315].map(a => `<polygon points="50,30 53,42 47,42" transform="rotate(${a} 50 50)"/>`).join('')}
+      </g>
+      <circle cx="50" cy="50" r="8" fill="${main}"/>
+      <circle cx="50" cy="50" r="4" fill="#FBBF24"/>
+    `;
+  } else if (b.iconType === 'diamond') {
+    icon = `
+      <polygon points="50,36 60,48 50,64 40,48" fill="${main}"/>
+      <polygon points="50,36 60,48 50,48 40,48" fill="#fff" opacity="0.55"/>
+      <polygon points="40,48 50,48 50,64" fill="#0F172A" opacity="0.35"/>
+      <polygon points="60,48 50,48 50,64" fill="#0F172A" opacity="0.55"/>
+      <polygon points="50,36 60,48 40,48" fill="none" stroke="#fff" stroke-width="0.6" opacity="0.8"/>
+    `;
+  } else if (b.iconType === 'lightning') {
+    icon = `
+      <polygon points="46,36 56,36 50,46 56,46 44,64 49,52 43,52" fill="${sub}" stroke="#FBBF24" stroke-width="0.6"/>
+    `;
+  }
+
+  return `<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+    <defs>
+      <linearGradient id="${gradId}-out" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0" stop-color="${main}" stop-opacity="1"/>
+        <stop offset="0.5" stop-color="${main}" stop-opacity="0.85"/>
+        <stop offset="1" stop-color="#0a0a0f"/>
+      </linearGradient>
+      <linearGradient id="${gradId}-mid" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0" stop-color="#2a2a35"/>
+        <stop offset="0.5" stop-color="${main}" stop-opacity="0.4"/>
+        <stop offset="1" stop-color="#0a0a0f"/>
+      </linearGradient>
+      <radialGradient id="${gradId}-hub" cx="0.4" cy="0.35">
+        <stop offset="0" stop-color="#fff" stop-opacity="0.7"/>
+        <stop offset="0.4" stop-color="${main}"/>
+        <stop offset="1" stop-color="#0a0a0f"/>
+      </radialGradient>
+    </defs>
+    <ellipse cx="50" cy="86" rx="38" ry="3" fill="#000" opacity="0.5"/>
+    <circle cx="50" cy="50" r="46" fill="url(#${gradId}-out)"/>
+    <circle cx="50" cy="50" r="46" fill="none" stroke="#0a0a0f" stroke-width="1.2" opacity="0.6"/>
+    <circle cx="50" cy="50" r="42" fill="none" stroke="${sub}" stroke-width="1.5" opacity="0.7"/>
+    <g fill="${sub}" opacity="0.95">
+      ${[0,45,90,135,180,225,270,315].map(a => `<circle cx="50" cy="6" r="2.2" transform="rotate(${a} 50 50)"/>`).join('')}
+    </g>
+    <circle cx="50" cy="50" r="34" fill="url(#${gradId}-mid)"/>
+    <circle cx="50" cy="50" r="34" fill="none" stroke="#0a0a0f" stroke-width="1" opacity="0.5"/>
+    <g fill="#0a0a0f" opacity="0.6">
+      ${[0,60,120,180,240,300].map(a => `<rect x="48" y="20" width="4" height="10" rx="1" transform="rotate(${a} 50 50)"/>`).join('')}
+    </g>
+    <circle cx="50" cy="50" r="20" fill="url(#${gradId}-hub)"/>
+    <circle cx="50" cy="50" r="20" fill="none" stroke="${sub}" stroke-width="1.2" opacity="0.8"/>
+    ${icon}
+    <ellipse cx="32" cy="28" rx="14" ry="6" fill="#fff" opacity="0.18" transform="rotate(-30 32 28)"/>
+  </svg>`;
 }
 
-// Theme
-function toggleTheme(){var h=document.documentElement;var t=h.getAttribute('data-theme')==='dark'?'light':'dark';h.setAttribute('data-theme',t);document.getElementById('btnTheme').textContent=t==='dark'?'🌙':'☀️'}
-
-// Calculator
-var pieChart=null;
-function gs(g){var inp=document.querySelectorAll('input[data-g="'+g+'"]');var t=0;for(var j=0;j<inp.length;j++)t+=parseFloat(inp[j].value)||0;return t}
-function fm(n){if(n===0)return'$0';return(n<0?'-$':'$')+Math.abs(Math.round(n)).toLocaleString()}
-function cc(){
-var inc=gs('i'),grps=['pf','hr','fx','ad','ag','bs','gv'],ids=['zpf','zhr','zfx','zad','zag','zbs','zgv'],tot=0,vals=[];
-for(var j=0;j<grps.length;j++){var v=gs(grps[j]);document.getElementById(ids[j]).textContent=fm(v);tot+=v;vals.push(v)}
-var pr=inc-tot;
-document.getElementById('vi').textContent=fm(inc);document.getElementById('vo').textContent=fm(tot);document.getElementById('vp').textContent=fm(pr);
-document.getElementById('zi').textContent=fm(inc);
-var pc=document.getElementById('vpc');if(pr<0)pc.classList.add('neg');else pc.classList.remove('neg');
-if(inc>0){var m=Math.round(pr/inc*100);document.getElementById('km').textContent=m+'%';document.getElementById('km').style.color=m>=0?'var(--green)':'var(--red)'}else document.getElementById('km').textContent='—';
-updateChart(vals);
+function renderBeys() {
+  const grid = document.getElementById('bey-grid');
+  grid.innerHTML = BEYS.map(b => `
+    <div class="bey-card" data-id="${b.id}" data-selected="false"
+         style="--accent: ${b.accent}; --accent-glow: ${b.accentGlow}; --spin-speed: ${b.spinSpeed * 4}s">
+      ${b.image ? `<img class="bey-bg" src="${b.image}" alt="" loading="lazy">` : ''}
+      <div class="bey-mask"></div>
+      <div class="bey-fx"></div>
+      <div class="bey-winrate">${b.winrate}%</div>
+      <div class="bey-visual"><div class="bey-tilt"><img src="bey-top-${b.id}.png" alt=""></div></div>
+      <div class="bey-name">${b.name}</div>
+      <div class="bey-type">${b.type}</div>
+      <div class="bey-stats">
+        <div class="bey-stat"><span class="lbl">攻擊</span><div class="bar"><span style="width:${b.stats.atk}%"></span></div></div>
+        <div class="bey-stat"><span class="lbl">防禦</span><div class="bar"><span style="width:${b.stats.def}%"></span></div></div>
+        <div class="bey-stat"><span class="lbl">持久</span><div class="bar"><span style="width:${b.stats.sta}%"></span></div></div>
+      </div>
+    </div>
+  `).join('');
+  grid.querySelectorAll('.bey-card').forEach(card => {
+    card.addEventListener('click', () => {
+      if (STATE.busy) return;
+      const wasSelected = card.dataset.selected === 'true';
+      grid.querySelectorAll('.bey-card').forEach(c => c.dataset.selected = 'false');
+      card.dataset.selected = 'true';
+      STATE.picked = card.dataset.id;
+      const btn = document.getElementById('battle-btn');
+      btn.disabled = false;
+      btn.textContent = '開戰';
+      if (!wasSelected) SFX.select();
+    });
+  });
 }
-function initChart(){
-var ctx=document.getElementById('pieChart');if(!ctx)return;
-if(pieChart)pieChart.destroy();
-pieChart=new Chart(ctx,{type:'doughnut',data:{labels:['平台金流','人事','固定','廣告','代理','幣商','國家'],datasets:[{data:[0,0,0,0,0,0,0],backgroundColor:['#3B82F6','#FF6B35','#8B5CF6','#FFC107','#00D4AA','#EF4444','#FF8C5A'],borderWidth:0,borderRadius:4}]},options:{responsive:true,plugins:{legend:{position:'bottom',labels:{color:'#8E8E99',font:{family:'Noto Sans TC',size:12},padding:16,usePointStyle:true,pointStyleWidth:8}}},cutout:'65%'}});
+
+function determineWinner() {
+  const weights = BEYS.map(b => {
+    const composite = b.stats.atk * 0.35 + b.stats.def * 0.30 + b.stats.sta * 0.35;
+    return composite + (Math.random() - 0.5) * 50;
+  });
+  let max = -Infinity, winnerIdx = 0;
+  weights.forEach((w, i) => { if (w > max) { max = w; winnerIdx = i; }});
+  return BEYS[winnerIdx];
 }
-function updateChart(vals){if(!pieChart)initChart();if(pieChart){pieChart.data.datasets[0].data=vals;pieChart.update()}}
 
-// AI
-function runAI(){
-var input=document.getElementById('aiInput').value.trim();if(!input){alert('請輸入帳目資料');return}
-document.getElementById('aiLoading').classList.add('show');document.getElementById('aiResult').classList.remove('show');
-fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:1000,messages:[{role:'user',content:'你是一個娛樂城財務分類助手。請將以下帳目資料分類到這八組：1.平台金流(站台費/遊戲商線路費/遊戲商損益/儲值金流費) 2.人事成本(主播薪資/運營人員) 3.固定開銷(租金/軟硬體) 4.廣告費用(品牌廣告/IP直播廣告/活動日金/抽獎/周邊) 5.代理商(傭金) 6.幣商(輸贏) 7.國家(娛樂稅/所得稅) 8.收入(玩家儲值)。回覆格式必須是純JSON：{"收入":數字,"平台金流":數字,"人事成本":數字,"固定開銷":數字,"廣告費用":數字,"代理商":數字,"幣商":數字,"國家":數字,"說明":"簡短說明分類邏輯"}。帳目資料：\n'+input}]})}).then(function(r){return r.json()}).then(function(data){
-document.getElementById('aiLoading').classList.remove('show');
-var text=data.content.map(function(i){return i.text||''}).join('');
-try{
-var clean=text.replace(/```json|```/g,'').trim();
-var result=JSON.parse(clean);
-fillCalc(result);
-document.getElementById('aiResultBody').innerHTML='<div style="color:var(--accent);font-weight:700;margin-bottom:8px">已自動填入計算機</div><div>'+result['說明']+'</div>';
-document.getElementById('aiResult').classList.add('show');
-}catch(e){
-document.getElementById('aiResultBody').innerHTML='<div style="color:var(--text1)">'+text+'</div>';
-document.getElementById('aiResult').classList.add('show');
+function startBattle() {
+  if (!STATE.picked || STATE.chances <= 0 || STATE.busy) return;
+  STATE.busy = true;
+  SFX.start();
+  if (idleBg) { try { idleBg.pause(); } catch(e){} }
+
+  const overlay = document.getElementById('battle-overlay');
+  const arena = document.getElementById('arena');
+  const pickedBey = BEYS.find(b => b.id === STATE.picked);
+  document.getElementById('picked-name').textContent = pickedBey.name;
+
+  const winner = determineWinner();
+  const others = BEYS.filter(b => b.id !== winner.id).sort(() => Math.random() - 0.5);
+  const knockoutOrder = others;
+
+  arena.innerHTML = '';
+  const positions = [
+    { x: -90, y: -90 }, { x: 90, y: -90 }, { x: -90, y: 90 }, { x: 90, y: 90 },
+  ];
+  BEYS.forEach((b, i) => {
+    const div = document.createElement('div');
+    div.className = 'arena-bey';
+    div.id = `arena-${b.id}`;
+    div.style.cssText = `--x: ${positions[i].x}px; --y: ${positions[i].y}px; --accent: ${b.accent};`;
+    div.innerHTML = `<img src="bey-top-${b.id}.png" alt="" style="width:100%;height:100%;object-fit:contain">`;
+    arena.appendChild(div);
+  });
+
+  overlay.classList.add('show');
+  const bgVideo = document.getElementById('overlay-bg');
+
+  const VIDEO_DURATION = 10;
+  const KNOCKOUT_TIMES = [1.8, 3.4, 5.0];
+  const WINNER_TIME = 5.5;
+  const RESULT_TIME = VIDEO_DURATION;
+  const knockedSet = new Set();
+  let winnerShown = false, resulted = false;
+  document.getElementById('timer').textContent = `00:10`;
+
+  const moveInterval = setInterval(() => {
+    BEYS.forEach((b) => {
+      const el = document.getElementById(`arena-${b.id}`);
+      if (el && !el.classList.contains('knocked') && !el.classList.contains('winner')) {
+        const angle = Math.random() * Math.PI * 2;
+        const r = 40 + Math.random() * 60;
+        el.style.setProperty('--x', `${Math.cos(angle) * r}px`);
+        el.style.setProperty('--y', `${Math.sin(angle) * r}px`);
+      }
+    });
+  }, 700);
+
+  const onTime = () => {
+    const ct = bgVideo.currentTime;
+    const display = Math.max(1, 10 - Math.floor(ct));
+    document.getElementById('timer').textContent = `00:${String(display).padStart(2, '0')}`;
+    KNOCKOUT_TIMES.forEach((kt, i) => {
+      if (ct >= kt && !knockedSet.has(i)) {
+        knockedSet.add(i);
+        const b = knockoutOrder[i];
+        if (!b) return;
+        const el = document.getElementById(`arena-${b.id}`);
+        if (!el) return;
+        el.classList.add('knocked');
+        const angle = Math.random() * Math.PI * 2;
+        el.style.setProperty('--x', `${Math.cos(angle) * 220}px`);
+        el.style.setProperty('--y', `${Math.sin(angle) * 220}px`);
+      }
+    });
+    if (!winnerShown && ct >= WINNER_TIME) {
+      winnerShown = true;
+      clearInterval(moveInterval);
+      const el = document.getElementById(`arena-${winner.id}`);
+      el.classList.add('winner');
+      el.style.setProperty('--x', '0px');
+      el.style.setProperty('--y', '0px');
+    }
+    if (!resulted && ct >= RESULT_TIME) {
+      resulted = true;
+      bgVideo.removeEventListener('timeupdate', onTime);
+      showResult(winner, pickedBey);
+    }
+  };
+
+  const startSync = () => {
+    setTimeout(() => {
+      BEYS.forEach((b) => {
+        const el = document.getElementById(`arena-${b.id}`);
+        const angle = Math.random() * Math.PI * 2;
+        const r = 50 + Math.random() * 30;
+        el.style.setProperty('--x', `${Math.cos(angle) * r}px`);
+        el.style.setProperty('--y', `${Math.sin(angle) * r}px`);
+      });
+    }, 200);
+    bgVideo.addEventListener('timeupdate', onTime);
+  };
+
+  if (bgVideo) {
+    bgVideo.loop = false;
+    bgVideo.currentTime = 0;
+    bgVideo.muted = false;
+    bgVideo.volume = 0.85;
+    bgVideo.addEventListener('playing', startSync, { once: true });
+    bgVideo.play().catch(() => { bgVideo.muted = true; bgVideo.play().catch(()=>{}); startSync(); });
+  } else {
+    startSync();
+  }
 }
-}).catch(function(e){document.getElementById('aiLoading').classList.remove('show');alert('AI 分析失敗：'+e.message)});
+
+function showResult(winner, picked) {
+  const won = winner.id === picked.id;
+  STATE.chances--;
+  document.getElementById('chances').textContent = `${STATE.chances}/3`;
+
+  if (won) {
+    STATE.tickets++;
+    STATE.wins++;
+    document.getElementById('tickets').textContent = STATE.tickets;
+    renderPrizes();
+  }
+
+  const card = document.getElementById('result-card');
+  const tag = document.getElementById('result-tag');
+  const title = document.getElementById('result-title');
+  const detail = document.getElementById('result-detail');
+  const gain = document.getElementById('ticket-gain');
+  const strip = document.getElementById('result-strip');
+  const lineCta = document.getElementById('line-cta');
+
+  strip.innerHTML = BEYS.map(b => `
+    <div class="slot ${b.id === winner.id ? 'winner' : ''}">
+      ${b.image ? `<img src="${b.image}" alt="">` : ''}
+      <div class="nm">${b.name}</div>
+    </div>
+  `).join('');
+
+  if (won) {
+    SFX.win();
+    card.className = 'result-card win';
+    tag.className = 'result-tag win';
+    tag.textContent = '中獎';
+    title.textContent = '押對了';
+    detail.innerHTML = `<strong style="color:var(--gold)">${winner.name}</strong> 勝出，本場押注命中。<br>抽獎券 +1，請前往官方 LINE 確認領取。`;
+    gain.style.display = '';
+    lineCta.style.display = 'flex';
+    spawnConfetti(card);
+  } else {
+    SFX.lose();
+    card.className = 'result-card lose';
+    tag.className = 'result-tag lose';
+    tag.textContent = '再接再厲';
+    title.textContent = '差一點';
+    detail.innerHTML = `<strong style="color:${winner.accent}">${winner.name}</strong> 勝出。<br>你押的是 ${picked.name}，今日剩 ${STATE.chances} 次機會。`;
+    gain.style.display = 'none';
+    lineCta.style.display = 'none';
+  }
+
+  document.getElementById('battle-overlay').classList.remove('show');
+  const bgVideo = document.getElementById('overlay-bg');
+  if (bgVideo) bgVideo.pause();
+  document.getElementById('result').classList.add('show');
 }
-function fillCalc(r){
-var map={i:'收入',pf:'平台金流',hr:'人事成本',fx:'固定開銷',ad:'廣告費用',ag:'代理商',bs:'幣商',gv:'國家'};
-Object.keys(map).forEach(function(g){
-var val=r[map[g]]||0;
-var inputs=document.querySelectorAll('input[data-g="'+g+'"]');
-if(inputs.length===1)inputs[0].value=val;
-else if(inputs.length>1){inputs[0].value=val;for(var i=1;i<inputs.length;i++)inputs[i].value=0}
-});
-cc();switchPage('calc');
+
+function spawnConfetti(parent) {
+  const colors = ['#FBBF24', '#F97316', '#DC2626', '#8B5CF6', '#EC4899'];
+  for (let i = 0; i < 36; i++) {
+    const c = document.createElement('div');
+    c.className = 'confetti';
+    c.style.cssText = `
+      left: ${Math.random() * 100}%;
+      background: ${colors[Math.floor(Math.random() * colors.length)]};
+      transform: rotate(${Math.random() * 360}deg);
+      animation: confetti-fall ${1.2 + Math.random() * 0.8}s ease-out ${Math.random() * 0.4}s forwards;
+    `;
+    parent.appendChild(c);
+  }
 }
-function handleFile(e){var f=e.target.files[0];if(!f)return;var reader=new FileReader();reader.onload=function(ev){document.getElementById('aiInput').value=ev.target.result};reader.readAsText(f)}
-function clearAI(){document.getElementById('aiInput').value='';document.getElementById('aiResult').classList.remove('show')}
 
-// Reveal
-function observeReveals(){var ro=new IntersectionObserver(function(entries){entries.forEach(function(e){if(e.isIntersecting)e.target.classList.add('visible')})},{threshold:.06,rootMargin:'0px 0px -40px 0px'});document.querySelectorAll('.reveal:not(.visible)').forEach(function(el){ro.observe(el)})}
-observeReveals();
+renderBeys();
+renderPrizes();
+document.getElementById('battle-btn').addEventListener('click', startBattle);
 
-// Scroll
-window.addEventListener('scroll',function(){document.getElementById('stb').classList.toggle('show',window.scrollY>400)});
+(function setupMascot() {
+  const mascot = document.getElementById('mascot');
+  const bubble = document.getElementById('mascot-bubble');
+  if (!mascot || !bubble) return;
+  const lines = [
+    '準備好了嗎？<br>選一隻陀螺押注吧！',
+    '老闆我跟你說<br>這把穩贏的啦',
+    '把紅包押下去<br>不要慫！',
+    '我玩這個十年<br>相信哥就對了',
+    '兄弟仗義<br>這把跟我走',
+    '中了請我喝<br>一杯珍奶',
+    '別怕別怕<br>輸了再投一次',
+    '我看過了<br>這隻有靈性',
+    '不押我押<br>等等就後悔',
+    '一發入魂<br>就在這把',
+    '哥的雷達在響<br>就是這隻',
+    '放心啦<br>我會用念力推它',
+  ];
+  let i = 0;
+  mascot.addEventListener('click', () => {
+    i = (i + 1) % lines.length;
+    mascot.classList.remove('poke');
+    void mascot.offsetWidth;
+    mascot.classList.add('poke');
+    bubble.classList.add('swap');
+    setTimeout(() => {
+      bubble.innerHTML = lines[i];
+      bubble.classList.remove('swap');
+    }, 160);
+    try { SFX.hover(); } catch(e){}
+  });
+})();
 
-// Particles
-(function(){var c=document.getElementById('particles');if(!c)return;var cols=['#FF6B35','#00D4AA','#8B5CF6','#3B82F6','#FFC107'];for(var i=0;i<55;i++){var p=document.createElement('div');p.className='particle';p.style.left=Math.random()*100+'%';var s=(Math.random()*3+1.5)+'px';p.style.width=p.style.height=s;p.style.background=cols[Math.floor(Math.random()*cols.length)];p.style.animationDuration=(Math.random()*20+12)+'s';p.style.animationDelay=(Math.random()*14)+'s';c.appendChild(p)}})();
+const idleBg = document.getElementById('idle-bg');
+const overlayBg = document.getElementById('overlay-bg');
 
-// Mouse glow
-var _mg=document.getElementById('mouseGlow');if(_mg){document.addEventListener('mousemove',function(e){_mg.style.left=e.clientX+'px';_mg.style.top=e.clientY+'px'})}
+(function bootIdleBg() {
+  const v = idleBg;
+  if (!v) return;
+  v.muted = true;
+  v.playsInline = true;
+  v.volume = 0.55;
+  const tryPlay = () => v.play().catch(() => {});
+  tryPlay();
+  v.addEventListener('canplay', tryPlay, { once: true });
+  v.addEventListener('loadeddata', tryPlay, { once: true });
+  const fadeIn = () => {
+    v.muted = false;
+    let t = 0;
+    const target = 0.55;
+    v.volume = 0;
+    const id = setInterval(() => {
+      t += 0.06;
+      v.volume = Math.min(target, t);
+      if (v.volume >= target) clearInterval(id);
+    }, 90);
+  };
+  const unlock = () => {
+    tryPlay();
+    fadeIn();
+    document.removeEventListener('pointerdown', unlock);
+    document.removeEventListener('touchstart', unlock);
+    document.removeEventListener('keydown', unlock);
+  };
+  document.addEventListener('pointerdown', unlock, { once: true });
+  document.addEventListener('touchstart', unlock, { once: true });
+  document.addEventListener('keydown', unlock, { once: true });
+})();
+
+const SFX = (() => {
+  let ctx = null;
+  const ensure = () => {
+    if (!ctx) {
+      const AC = window.AudioContext || window.webkitAudioContext;
+      if (AC) ctx = new AC();
+    }
+    if (ctx && ctx.state === 'suspended') ctx.resume();
+    return ctx;
+  };
+  const tone = ({ freq = 440, dur = 0.12, type = 'sine', gain = 0.18, slide = 0, delay = 0 } = {}) => {
+    const c = ensure();
+    if (!c) return;
+    const t0 = c.currentTime + delay;
+    const osc = c.createOscillator();
+    const g = c.createGain();
+    osc.type = type;
+    osc.frequency.setValueAtTime(freq, t0);
+    if (slide) osc.frequency.exponentialRampToValueAtTime(Math.max(40, freq + slide), t0 + dur);
+    g.gain.setValueAtTime(0.0001, t0);
+    g.gain.exponentialRampToValueAtTime(gain, t0 + 0.012);
+    g.gain.exponentialRampToValueAtTime(0.0001, t0 + dur);
+    osc.connect(g).connect(c.destination);
+    osc.start(t0);
+    osc.stop(t0 + dur + 0.02);
+  };
+  const noise = ({ dur = 0.18, gain = 0.12, hp = 800, delay = 0 } = {}) => {
+    const c = ensure();
+    if (!c) return;
+    const t0 = c.currentTime + delay;
+    const len = Math.floor(c.sampleRate * dur);
+    const buf = c.createBuffer(1, len, c.sampleRate);
+    const data = buf.getChannelData(0);
+    for (let i = 0; i < len; i++) data[i] = (Math.random() * 2 - 1) * (1 - i / len);
+    const src = c.createBufferSource();
+    src.buffer = buf;
+    const filt = c.createBiquadFilter();
+    filt.type = 'highpass';
+    filt.frequency.value = hp;
+    const g = c.createGain();
+    g.gain.setValueAtTime(gain, t0);
+    g.gain.exponentialRampToValueAtTime(0.0001, t0 + dur);
+    src.connect(filt).connect(g).connect(c.destination);
+    src.start(t0);
+    src.stop(t0 + dur);
+  };
+  return {
+    select() { tone({ freq: 720, dur: 0.08, type: 'triangle', gain: 0.18, slide: 360 }); tone({ freq: 1080, dur: 0.06, type: 'sine', gain: 0.12, delay: 0.04 }); },
+    hover()  { tone({ freq: 520, dur: 0.05, type: 'sine', gain: 0.10 }); },
+    start()  { tone({ freq: 220, dur: 0.18, type: 'sawtooth', gain: 0.22, slide: 280 }); tone({ freq: 660, dur: 0.22, type: 'square', gain: 0.14, delay: 0.06, slide: 220 }); noise({ dur: 0.22, gain: 0.10, hp: 600, delay: 0.02 }); },
+    win()    { [523.25, 659.25, 783.99, 1046.5].forEach((f, i) => tone({ freq: f, dur: 0.18, type: 'triangle', gain: 0.18, delay: i * 0.10 })); },
+    lose()   { tone({ freq: 392, dur: 0.22, type: 'sawtooth', gain: 0.16, slide: -160 }); tone({ freq: 261, dur: 0.32, type: 'triangle', gain: 0.14, delay: 0.18, slide: -80 }); }
+  };
+})();
+
 </script>
-</body>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'9f66979a4c373312',t:'MTc3Nzg4ODEzMg=='};var a=document.createElement('script');a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
 </html>
-＄
