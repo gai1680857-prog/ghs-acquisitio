@@ -1,8 +1,6 @@
 const VIDEO_KEYS = {
   "/idle-bg.mp4": "beyblade/idle-bg.mp4",
-  "/idle-bg.webm": "beyblade/idle-bg.webm",
   "/battle-bg.mp4": "beyblade/battle-bg.mp4",
-  "/battle-bg.webm": "beyblade/battle-bg.webm",
 };
 
 const CONTENT_TYPE = {

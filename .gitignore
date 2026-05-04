@@ -5,9 +5,8 @@
 .env*
 !.env.example
 
-# media (served from R2, do not commit)
+# media — mp4 served from R2 (excluded), webm served via Static Assets (committed)
 *.mp4
-*.webm
 
 # local backups & state
 *.old-acquisition
